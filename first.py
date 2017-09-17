@@ -1,7 +1,7 @@
 #! /usr/:bin/env python
 
 
-# CONFIGURE DAVINC (GENERAL CONFIGURATION OF THE JOB)
+# CONFIGURE DAVINCI (GENERAL CONFIGURATION OF THE JOB)
 from Configurables import DaVinci
 import GaudiPython
 import os.path
@@ -13,7 +13,7 @@ DaVinci().Simulation = True
 DaVinci().DDDBtag  = "dddb-20130929-1"
 DaVinci().CondDBtag = "sim-20130522-1-vc-md100"
 
-## INPUT DSTS, POTENTIALLY ADD MORE
+## INPUT DSTS, POTENTIALLY ADD MORE (estan todas incorporadas agora)
 dst_file = []
 for i in xrange(1,34):
 	i = str(i)
