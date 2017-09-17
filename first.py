@@ -1,10 +1,7 @@
 #! /usr/:bin/env python
-#este é un cambio
 
-#outro cambio
-#este é outro
 
-## CONFIGURE DAVINC (GENERAL CONFIGURATION OF THE JOB)
+# CONFIGURE DAVINC (GENERAL CONFIGURATION OF THE JOB)
 from Configurables import DaVinci
 import GaudiPython
 import os.path
