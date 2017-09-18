@@ -29,7 +29,7 @@ for i in xrange(1,34):
 gaudi = GaudiPython.AppMgr()
 gaudi.initialize()
 
-## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
+## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED (non entendo como vai isto)
 TES = gaudi.evtsvc()
 for i in range(100):
     c1=gaudi.run(1)
