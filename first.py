@@ -27,15 +27,44 @@ for i in xrange(1,34):
 gaudi = GaudiPython.AppMgr()
 gaudi.initialize()
 
-## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED (non entendo como vai isto)
+## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
+## Vou a facer unha ntupla con todos os eventos 
 TES = gaudi.evtsvc()
-for i in range(100):
+f = ROOT.TFile('variables.root','recreate')
+t = ROOT.TTree('aTree','aTree')
+
+pETA = np.zeros(1, dtype=float)
+pPHI = np.zeros(1, dtype=float)
+pPID = np.zeros(1, dtype=float)
+tETA = np.zeros(1, dtype=float)
+tPHI = np.zeros(1, dtype=float)
+tTYPE = np.zeros(1, dtype=float)
+
+t.Branch('pETA',pETA,'pETA/D')
+t.Branch('pPHI',pPHI,'pPHI/D')
+t.Branch('pPID',pPID,'pPID/D')
+t.Branch('tETA',tETA,'tETA/D')
+t.Branch('tPHI',tPHI,'tPHI/D')
+t.Branch('tTYPE',tTYPE,'tTYPE/D')
+
+
+
+
+for i in range(100000):
     c1=gaudi.run(1)
     tracks = TES["Rec/Track/Best"]
     mcparticles = TES["MC/Particles"]
-    #if not mcparticles: break ## <--- use this condition to know when the dst is finished
-    if tracks.size(): break
-
+    if not mcparticles: break ## <--- use this condition to know when the dst is finished
+    if not tracks.size(): continue
+    for i in 
+    pETA[0] = particle.momentum().eta()
+    pPHI[0] = particle.momentum().phi()
+    pPID[0] = particle.particleID().pid()
+    tETA[0] = track.momentum().eta()
+    tPHI[0] = track.momentum().phi()
+    tTYPE[0] = track.type()
+'''
+esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
 # could also be
 # for particle in mcparticles: ...
@@ -48,7 +77,7 @@ if tracks.size(): track = tracks[0]
 print track.momentum().eta()
 print track.momentum().phi()
 print track.type()
-
+'''
 #// -----------------
 #// track typology:
 #//-----------------
