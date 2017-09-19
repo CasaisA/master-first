@@ -30,6 +30,7 @@ gaudi.initialize()
 ## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
 ## Vou a facer unha ntupla con todos os eventos 
 TES = gaudi.evtsvc()
+'''
 f = ROOT.TFile('variables.root','recreate')
 t = ROOT.TTree('aTree','aTree')
 
@@ -47,22 +48,38 @@ t.Branch('tETA',tETA,'tETA/D')
 t.Branch('tPHI',tPHI,'tPHI/D')
 t.Branch('tTYPE',tTYPE,'tTYPE/D')
 
+'''
 
 
-
-for i in range(100000):
+for i in range(100):
     c1=gaudi.run(1)
     tracks = TES["Rec/Track/Best"]
     mcparticles = TES["MC/Particles"]
-    if not mcparticles: break ## <--- use this condition to know when the dst is finished
+    if not mcparticles: break
+ ## <--- use this condition to know when the dst is finished
     if not tracks.size(): continue
-    for i in 
-    pETA[0] = particle.momentum().eta()
-    pPHI[0] = particle.momentum().phi()
-    pPID[0] = particle.particleID().pid()
-    tETA[0] = track.momentum().eta()
-    tPHI[0] = track.momentum().phi()
-    tTYPE[0] = track.type()
+    if not mcparticles.size(): continue
+    if not mcparticles.size(): continue
+    tracks_dict={}
+    particles_dict={}
+    tracks_dict['eta']=[]
+    tracks_dict['phi']=[]
+    tracks_dict['type']=[]
+    particles_dict['eta']=[]
+    particles_dict['phi']=[]
+    particles_dict['pid']=[]
+    for j in xrange(tracks.size()):
+	    if not mcparticles[j]: continue
+	    if not tracks[j]: continue
+	    tracks_dict['eta'].append(tracks[j].momentum().eta())
+	    tracks_dict['phi'].append(tracks[j].momentum().phi())
+	    tracks_dict['type'].append(tracks[j].type())
+	    particles_dict['eta'].append(mcparticles[j].momentum().eta())
+	    particles_dict['phi'].append(mcparticles[j].momentum().phi())
+	    particles_dict['pid'].append(mcparticles[j].momentum().phi())
+	    
+	    
+   
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
