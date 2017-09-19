@@ -1,4 +1,4 @@
-from ROOT import 
+import ROOT
 import numpy as np
 
 f = ROOT.TFile('a.root','recreate')
@@ -16,7 +16,7 @@ t.Branch('normal',no,'normal/D')
 t.Branch('uniform',un,'uniform/D')
 
 for i in xrange(100000):
-    no[0] = ROOT.gRandom.Gaus(); ROOT.gRandom.Uniform()
+    no[0] = ROOT.gRandom.Gaus();un[0]= ROOT.gRandom.Uniform()
     t.Fill()
 
 # write the tree into the output file and close
