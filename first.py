@@ -1,6 +1,4 @@
 #! /usr/:bin/env python
-
-
 # CONFIGURE DAVINCI (GENERAL CONFIGURATION OF THE JOB)
 from Configurables import DaVinci
 import GaudiPython
