@@ -69,15 +69,18 @@ for i in range(100):
     particles_dict['phi']=[]
     particles_dict['pid']=[]
     for j in xrange(tracks.size()):
-	    if not mcparticles[j]: continue
-	    if not tracks[j]: continue
-	    tracks_dict['eta'].append(tracks[j].momentum().eta())
-	    tracks_dict['phi'].append(tracks[j].momentum().phi())
-	    tracks_dict['type'].append(tracks[j].type())
-	    particles_dict['eta'].append(mcparticles[j].momentum().eta())
-	    particles_dict['phi'].append(mcparticles[j].momentum().phi())
-	    particles_dict['pid'].append(mcparticles[j].momentum().phi())
 	    
+	    if not tracks[j]: continue
+	    tracks_dict['eta'][0]=tracks[j].momentum().eta()
+	    tracks_dict['phi'][0]=tracks[j].momentum().phi()
+	    tracks_dict['type'][0]=tracks[j].type()
+	   
+ for j in xrange(mcparticles.size()):
+	    if not mcparticles[j]: continue
+	    
+	    particles_dict['eta'][0]=mcparticles[j].momentum().eta()
+	    particles_dict['phi'][0]=mcparticles[j].momentum().phi()
+	    particles_dict['pid'][0]=mcparticles[j].momentum().phi()    
 	    
    
 '''
