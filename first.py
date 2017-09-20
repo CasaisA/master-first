@@ -30,25 +30,9 @@ gaudi.initialize()
 ## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
 ## Vou a facer unha ntupla con todos os eventos 
 TES = gaudi.evtsvc()
-'''
+
 f = ROOT.TFile('variables.root','recreate')
 t = ROOT.TTree('aTree','aTree')
-
-pETA = np.zeros(1, dtype=float)
-pPHI = np.zeros(1, dtype=float)
-pPID = np.zeros(1, dtype=float)
-tETA = np.zeros(1, dtype=float)
-tPHI = np.zeros(1, dtype=float)
-tTYPE = np.zeros(1, dtype=float)
-
-t.Branch('pETA',pETA,'pETA/D')
-t.Branch('pPHI',pPHI,'pPHI/D')
-t.Branch('pPID',pPID,'pPID/D')
-t.Branch('tETA',tETA,'tETA/D')
-t.Branch('tPHI',tPHI,'tPHI/D')
-t.Branch('tTYPE',tTYPE,'tTYPE/D')
-
-'''
 
 
 for i in range(100):
@@ -68,21 +52,31 @@ for i in range(100):
     particles_dict['eta']=np.array([],dtype=float)
     particles_dict['phi']=np.array([],dtype=float)
     particles_dict['pid']=np.array([],dtype=float)
+    tracks_index = 1
+    particles_index = 1
     for j in xrange(tracks.size()):
 	    
 	    if not tracks[j]: continue
+	    tracks_index+=1
 	    tracks_dict['eta'][0]=tracks[j].momentum().eta()
 	    tracks_dict['phi'][0]=tracks[j].momentum().phi()
 	    tracks_dict['type'][0]=tracks[j].type()
+	    t.Branch('tracks_eta_'+str(tracks_index),tracks_dict['eta'],'tracks_eta_'+str(tracks_index)+'/D')
+	    t.Branch('tracks_phi_'+str(tracks_index),tracks_dict['phi'],'tracks_eta_'+str(tracks_index)+'/D')            t.Branch('tracks_type_'+str(tracks_index),tracks_dict['type'],'tracks_type_'+str(tracks_index)+'/D')
 	   
- for j in xrange(mcparticles.size()):
+	   
+    for j in xrange(mcparticles.size()):
 	    if not mcparticles[j]: continue
+	    particles_index += 1
 	    
 	    particles_dict['eta'][0]=mcparticles[j].momentum().eta()
 	    particles_dict['phi'][0]=mcparticles[j].momentum().phi()
 	    particles_dict['pid'][0]=mcparticles[j].momentum().phi()    
-	    
-   
+
+	    t.Branch('particles_eta_'+str(particles_index),particles_dict['eta'],'particles_eta_'+str(particles_index)+'/D')
+	     t.Branch('particles_phi_'+str(particles_index),particles_dict['phi'],'particles_phi_'+str(particles_index)+'/D')
+	      t.Branch('particles_pid_'+str(particles_index),particles_dict['pid'],'particles_pid_'+str(particles_index)+'/D')
+     t.Fill()
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
