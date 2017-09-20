@@ -64,7 +64,7 @@ for i in range(5):
 	    tracks_dict['phi'][0]=tracks[j].momentum().phi()
 	    tracks_dict['type'][0]=tracks[j].type()
 	    t.Branch('tracks_eta_'+str(tracks_index),tracks_dict['eta'],'tracks_eta_'+str(tracks_index)+'/D')
-	    t.Branch('tracks_phi_'+str(tracks_index),tracks_dict['phi'],'tracks_eta_'+str(tracks_index)+'/D')            
+	    t.Branch('tracks_phi_'+str(tracks_index),tracks_dict['phi'],'tracks_phi_'+str(tracks_index)+'/D')            
             t.Branch('tracks_type_'+str(tracks_index),tracks_dict['type'],'tracks_type_'+str(tracks_index)+'/D')
 	   
 	   
