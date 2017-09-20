@@ -3,6 +3,8 @@
 from Configurables import DaVinci
 import GaudiPython
 import os.path
+import ROOT
+import numpy as np
 
 DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
@@ -35,7 +37,7 @@ f = ROOT.TFile('variables.root','recreate')
 t = ROOT.TTree('aTree','aTree')
 
 
-for i in range(100):
+for i in range(5):
     c1=gaudi.run(1)
     tracks = TES["Rec/Track/Best"]
     mcparticles = TES["MC/Particles"]
@@ -46,12 +48,12 @@ for i in range(100):
     if not mcparticles.size(): continue
     tracks_dict={}
     particles_dict={}
-    tracks_dict['eta']=np.array([],dtype=float)
-    tracks_dict['phi']=np.array([],dtype=float)
-    tracks_dict['type']=np.array([],dtype=float)
-    particles_dict['eta']=np.array([],dtype=float)
-    particles_dict['phi']=np.array([],dtype=float)
-    particles_dict['pid']=np.array([],dtype=float)
+    tracks_dict['eta']=np.array([0],dtype=float)
+    tracks_dict['phi']=np.array([0],dtype=float)
+    tracks_dict['type']=np.array([0],dtype=float)
+    particles_dict['eta']=np.array([0],dtype=float)
+    particles_dict['phi']=np.array([0],dtype=float)
+    particles_dict['pid']=np.array([0],dtype=float)
     tracks_index = 1
     particles_index = 1
     for j in xrange(tracks.size()):
@@ -62,7 +64,8 @@ for i in range(100):
 	    tracks_dict['phi'][0]=tracks[j].momentum().phi()
 	    tracks_dict['type'][0]=tracks[j].type()
 	    t.Branch('tracks_eta_'+str(tracks_index),tracks_dict['eta'],'tracks_eta_'+str(tracks_index)+'/D')
-	    t.Branch('tracks_phi_'+str(tracks_index),tracks_dict['phi'],'tracks_eta_'+str(tracks_index)+'/D')            t.Branch('tracks_type_'+str(tracks_index),tracks_dict['type'],'tracks_type_'+str(tracks_index)+'/D')
+	    t.Branch('tracks_phi_'+str(tracks_index),tracks_dict['phi'],'tracks_eta_'+str(tracks_index)+'/D')            
+            t.Branch('tracks_type_'+str(tracks_index),tracks_dict['type'],'tracks_type_'+str(tracks_index)+'/D')
 	   
 	   
     for j in xrange(mcparticles.size()):
@@ -74,9 +77,11 @@ for i in range(100):
 	    particles_dict['pid'][0]=mcparticles[j].momentum().phi()    
 
 	    t.Branch('particles_eta_'+str(particles_index),particles_dict['eta'],'particles_eta_'+str(particles_index)+'/D')
-	     t.Branch('particles_phi_'+str(particles_index),particles_dict['phi'],'particles_phi_'+str(particles_index)+'/D')
-	      t.Branch('particles_pid_'+str(particles_index),particles_dict['pid'],'particles_pid_'+str(particles_index)+'/D')
-     t.Fill()
+	    t.Branch('particles_phi_'+str(particles_index),particles_dict['phi'],'particles_phi_'+str(particles_index)+'/D')
+	    t.Branch('particles_pid_'+str(particles_index),particles_dict['pid'],'particles_pid_'+str(particles_index)+'/D')     
+    t.Fill()
+t.Write()
+f.Close()
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
