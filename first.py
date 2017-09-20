@@ -62,12 +62,12 @@ for i in range(100):
     if not mcparticles.size(): continue
     tracks_dict={}
     particles_dict={}
-    tracks_dict['eta']=[]
-    tracks_dict['phi']=[]
-    tracks_dict['type']=[]
-    particles_dict['eta']=[]
-    particles_dict['phi']=[]
-    particles_dict['pid']=[]
+    tracks_dict['eta']=np.array([],dtype=float)
+    tracks_dict['phi']=np.array([],dtype=float)
+    tracks_dict['type']=np.array([],dtype=float)
+    particles_dict['eta']=np.array([],dtype=float)
+    particles_dict['phi']=np.array([],dtype=float)
+    particles_dict['pid']=np.array([],dtype=float)
     for j in xrange(tracks.size()):
 	    
 	    if not tracks[j]: continue
