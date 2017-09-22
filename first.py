@@ -34,7 +34,7 @@ gaudi.initialize()
 ## Vou a facer unha ntupla con todos os eventos
 
  
-f = ROOT.TFile('variables.root','recreate')
+#f = ROOT.TFile('variables.root','recreate')
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -45,6 +45,7 @@ trck_phi = np.zeros(1, dtype=float)
 trck_type = np.zeros(1, dtype=float)
 part_eta = np.zeros(1, dtype=float)
 part_pid = np.zeros(1, dtype=float)
+part_moth_pid = np.zeros(1, dtype=float)
 part_phi  = np.zeros(1, dtype=float)
 delta_r  = np.zeros(1, dtype=float)
 
@@ -55,6 +56,7 @@ t1.Branch('track_type',trck_type,'track_type/D')
 t1.Branch('partitlce_eta',part_eta,'particle_eta/D')
 t1.Branch('particle_phi',part_phi,'particle_phi/D')
 t1.Branch('particle_pid',part_pid,'particle_pid/D')
+t1.Branch('particle_mother_pid',part_moth_pid,'particle_mother_pid/D')
 t1.Branch('detal_r',delta_r,'detal_r/D')
 
 #arrancamos gaudi
@@ -68,8 +70,9 @@ def delPhi(x,y):
 
 event_id= 1
 unmatched_tracks = 0
-for i in range(100):
+for i in range(5):
 	event_id += 1
+	print event_id
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
         particles = TES["MC/Particles"]
@@ -110,6 +113,8 @@ for i in range(100):
 			part_phi[0]=particles[dr.index(min(dr))].momentum().phi()
 			part_pid[0]=particles[dr.index(min(dr))].particleID().pid()
 			delta_r[0] = dr[dr.index(min(dr))]
+			if particles[dr.index(min(dr))].mother: part_moth_pid[0]=particles[dr.index(min(dr))].mother().particleID().pid()
+			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
 
