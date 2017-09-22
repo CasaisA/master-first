@@ -45,7 +45,7 @@ trck_phi = np.zeros(1, dtype=float)
 trck_type = np.zeros(1, dtype=float)
 part_eta = np.zeros(1, dtype=float)
 part_pid = np.zeros(1, dtype=float)
-part_moth_pid = np.zeros(1, dtype=float)
+part_moth_pid = np.zeros(1, dtype=int)
 part_phi  = np.zeros(1, dtype=float)
 delta_r  = np.zeros(1, dtype=float)
 
@@ -57,7 +57,7 @@ t1.Branch('partitlce_eta',part_eta,'particle_eta/D')
 t1.Branch('particle_phi',part_phi,'particle_phi/D')
 t1.Branch('particle_pid',part_pid,'particle_pid/D')
 t1.Branch('particle_mother_pid',part_moth_pid,'particle_mother_pid/D')
-t1.Branch('detal_r',delta_r,'detal_r/D')
+t1.Branch('delta_r',delta_r,'delta_r/D')
 
 #arrancamos gaudi
 TES = gaudi.evtsvc()
@@ -68,9 +68,9 @@ def delPhi(x,y):
 	else:
 		return np.abs(2*np.pi-np.abs(x-y))
 
-event_id= 1
+event_id= 0
 unmatched_tracks = 0
-for i in range(5):
+for i in range(100):
 	event_id += 1
 	print event_id
 	c1=gaudi.run(1)
@@ -79,41 +79,40 @@ for i in range(5):
    	if not particles: break  ## <--- use this condition to know when the dst is finished
         if not tracks.size(): continue
         if not particles.size(): continue
-	trck_no=0
-	trck_wo_p=0
+	
+	
 	for j in xrange(tracks.size()):
 	#	if not particles[j].momentum(): continue
 	 	if not 'momentum' in dir(tracks[j]):
 			trck_wo_p += 1	
 			continue
 		
-		dphi = []
-		deta = []
-		dr = []
+		dr = 100
 		
-		part_wo_p=0
+		iterador = 0
 		for k in xrange(particles.size()):
 			
 			if  'momentum' in dir(particles[k]):
-				dphi.append(delPhi(tracks[j].momentum().phi(),particles[k].momentum().phi()))
-				deta.append(tracks[j].momentum().eta()-particles[k].momentum().eta())		
-				dr.append(np.sqrt(deta[k]**2+dphi[k]**2))
-				
+				dphi = delPhi(tracks[j].momentum().phi(),particles[k].momentum().phi())
+				deta = tracks[j].momentum().eta()-particles[k].momentum().eta()
+				dR = np.sqrt(deta**2+dphi**2)
+				if dR < dr:
+					dr = dR 
+					indice = iterador
+				iterador+=1
 			else: 
-				deta.append(1000)
-				dphi.append(1000)
-				dr.append(1000)	
-		
-		if min(dr)<.5:
+					
+				iterador+=1
+		if dr<.5:
 			evt_id[0]=event_id
 			trck_eta[0]=tracks[j].momentum().eta()
 			trck_phi[0]=tracks[j].momentum().phi()
 			trck_type[0]=tracks[j].type()
-			part_eta[0]=particles[dr.index(min(dr))].momentum().eta()
-			part_phi[0]=particles[dr.index(min(dr))].momentum().phi()
-			part_pid[0]=particles[dr.index(min(dr))].particleID().pid()
-			delta_r[0] = dr[dr.index(min(dr))]
-			if particles[dr.index(min(dr))].mother: part_moth_pid[0]=particles[dr.index(min(dr))].mother().particleID().pid()
+			part_eta[0]=particles[indice].momentum().eta()
+			part_phi[0]=particles[indice].momentum().phi()
+			part_pid[0]=particles[indice].particleID().pid()
+			delta_r[0] = dr
+			if 'particleID' in dir(particles[indice].mother): part_moth_pid[0]=particles[indice].mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
