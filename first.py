@@ -34,7 +34,7 @@ gaudi.initialize()
 ## Vou a facer unha ntupla con todos os eventos
 
  
-f = ROOT.TFile('/scratch13/acasais/track_matching1.root','recreate')
+f = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -70,7 +70,7 @@ def delPhi(x,y):
 
 event_id= 0
 unmatched_tracks = 0
-for i in range(100):
+for i in range(1000):
 	event_id += 1
 	print event_id
 	c1=gaudi.run(1)
