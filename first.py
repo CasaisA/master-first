@@ -5,11 +5,6 @@ import GaudiPython
 import os.path
 import ROOT
 import numpy as np
-#vou facer o root file onde meter todo e vou fixar as branches
-
-
-
-
 
 
 DaVinci().EvtMax = 0
@@ -65,8 +60,6 @@ t1.Branch('detal_r',delta_r,'detal_r/D')
 #arrancamos gaudi
 TES = gaudi.evtsvc()
 
-tracks_dict = {}
-particles_dict = {}
 def delPhi(x,y):
 	if np.abs(x-y)<=np.pi:
 		return np.abs(x-y)
@@ -75,7 +68,7 @@ def delPhi(x,y):
 
 event_id= 1
 unmatched_tracks = 0
-for i in range(2):
+for i in range(100):
 	event_id += 1
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
@@ -83,9 +76,6 @@ for i in range(2):
    	if not particles: break  ## <--- use this condition to know when the dst is finished
         if not tracks.size(): continue
         if not particles.size(): continue
-	dphi = []
-	deta = []
-	dr =[]
 	trck_no=0
 	trck_wo_p=0
 	for j in xrange(tracks.size()):
@@ -117,14 +107,20 @@ for i in range(2):
 			trck_phi[0]=tracks[j].momentum().phi()
 			trck_type[0]=tracks[j].type()
 			part_eta[0]=particles[dr.index(min(dr))].momentum().eta()
-			part_phi[0]=particles[dr.index(min(dr))].momentum().eta()
-			part_pid[0]=particles[dr.index(min(dr))].momentum().eta()
+			part_phi[0]=particles[dr.index(min(dr))].momentum().phi()
+			part_pid[0]=particles[dr.index(min(dr))].particleID().pid()
 			delta_r[0] = dr[dr.index(min(dr))]
 			t1.Fill()
 		else: unmatched_tracks += 1
 
-f = ROOT.TFile('variables.root','recreate')
-#t1.Write(); f.Close()				
+f2 = ROOT.TFile('variables.root','recreate')
+t2 = t1.Clone()
+t2.Write()
+f2.Close
+
+t = f2.Get('aTree')
+
+				
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
