@@ -5,6 +5,12 @@ import GaudiPython
 import os.path
 import ROOT
 import numpy as np
+#vou facer o root file onde meter todo e vou fixar as branches
+
+
+
+
+
 
 DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
@@ -30,11 +36,35 @@ gaudi = GaudiPython.AppMgr()
 gaudi.initialize()
 
 ## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
-## Vou a facer unha ntupla con todos os eventos 
-TES = gaudi.evtsvc()
+## Vou a facer unha ntupla con todos os eventos
 
+ 
 f = ROOT.TFile('variables.root','recreate')
 t = ROOT.TTree('aTree','aTree')
+
+
+#inicializo os arrays
+evt_id = np.zeros(1, dtype=float)
+trck_eta = np.zeros(1, dtype=float)
+trck_phi = np.zeros(1, dtype=float)
+trck_type = np.zeros(1, dtype=float)
+part_eta = np.zeros(1, dtype=float)
+part_pid = np.zeros(1, dtype=float)
+part_phi  = np.zeros(1, dtype=float)
+delta_r  = np.zeros(1, dtype=float)
+
+t.Branch('Event_id',evt_id,'Event_id/D')
+t.Branch('track_eta',trck_eta,'track_eta/D')
+t.Branch('track_phi',trck_phi,'track_phi/D')
+t.Branch('track_type',trck_type,'track_type/D')
+t.Branch('partitlce_eta',part_eta,'particle_eta/D')
+t.Branch('particle_phi',part_phi,'particle_phi/D')
+t.Branch('particle_pid',part_pid,'particle_pid/D')
+t.Branch('detal_r',delta_r,'detal_r/D')
+
+#arrancamos gaudi
+TES = gaudi.evtsvc()
+
 tracks_dict = {}
 particles_dict = {}
 def delPhi(x,y):
@@ -43,7 +73,8 @@ def delPhi(x,y):
 	else:
 		return np.abs(2*np.pi-np.abs(x-y))
 
-event_id= 0
+event_id= 1
+unmatched_tracks = 0
 for i in range(2):
 	event_id += 1
 	c1=gaudi.run(1)
@@ -52,37 +83,47 @@ for i in range(2):
    	if not particles: break  ## <--- use this condition to know when the dst is finished
         if not tracks.size(): continue
         if not particles.size(): continue
-	
-
-	tracks_dict['eta'] = []
-        tracks_dict['phi'] = []
-        tracks_dict['type'] = []
-        particles_dict['eta'] = []
-        particles_dict['phi'] = []
-        particles_dict['pid'] = []
-
-       
-
-
 	dphi = []
 	deta = []
 	dr =[]
+	trck_no=0
+	trck_wo_p=0
 	for j in xrange(tracks.size()):
 	#	if not particles[j].momentum(): continue
-	 	if not tracks[j].momentum(): continue
+	 	if not 'momentum' in dir(tracks[j]):
+			trck_wo_p += 1	
+			continue
 		
 		dphi = []
 		deta = []
 		dr = []
+		
+		part_wo_p=0
 		for k in xrange(particles.size()):
-			if not particles[k].momentum(): continue
-			dphi.append(delPhi(tracks[j].momentum().phi(),particles[k].momentum().phi()))
-			deta.append(tracks[j].momentum().eta()-particles[k].momentum().eta())		
-			dr.append(deta[k]**2+dphi[k]**2)
-		for k in len(dr):
-			if dr[k]<.5:
-				print dr[k]
+			
+			if  'momentum' in dir(particles[k]):
+				dphi.append(delPhi(tracks[j].momentum().phi(),particles[k].momentum().phi()))
+				deta.append(tracks[j].momentum().eta()-particles[k].momentum().eta())		
+				dr.append(np.sqrt(deta[k]**2+dphi[k]**2))
+				
+			else: 
+				deta.append(1000)
+				dphi.append(1000)
+				dr.append(1000)	
+		
+		if min(dr)<.5:
+			evt_id[0]=event_id
+			trck_eta[0]=tracks[j].momentum().eta()
+			trck_phi[0]=tracks[j].momentum().phi()
+			trck_type[0]=tracks[j].type()
+			part_eta[0]=particles[dr.index(min(dr))].momentum().eta()
+			part_phi[0]=particles[dr.index(min(dr))].momentum().eta()
+			part_pid[0]=particles[dr.index(min(dr))].momentum().eta()
+			delta_r[0] = dr[dr.index(min(dr))]
+			t.Fill()
+		else: unmatched_tracks += 1
 
+t.Write(); f.Close()				
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
