@@ -24,7 +24,7 @@ for i in xrange(1,34):
 	
 	if os.path.isfile(dst_file_name):
 		dst_file.append(dst_file_name)
-		DaVinci().Input = dst_file
+DaVinci().Input = dst_file
 
 gaudi = GaudiPython.AppMgr()
 gaudi.initialize()
@@ -35,53 +35,54 @@ TES = gaudi.evtsvc()
 
 f = ROOT.TFile('variables.root','recreate')
 t = ROOT.TTree('aTree','aTree')
+tracks_dict = {}
+particles_dict = {}
+def delPhi(x,y):
+	if np.abs(x-y)<=np.pi:
+		return np.abs(x-y)
+	else:
+		return np.abs(2*np.pi-np.abs(x-y))
+
+event_id= 0
+for i in range(2):
+	event_id += 1
+	c1=gaudi.run(1)
+        tracks = TES["Rec/Track/Best"]
+        particles = TES["MC/Particles"]
+   	if not particles: break  ## <--- use this condition to know when the dst is finished
+        if not tracks.size(): continue
+        if not particles.size(): continue
+	
+
+	tracks_dict['eta'] = []
+        tracks_dict['phi'] = []
+        tracks_dict['type'] = []
+        particles_dict['eta'] = []
+        particles_dict['phi'] = []
+        particles_dict['pid'] = []
+
+       
 
 
-for i in range(5):
-    c1=gaudi.run(1)
-    tracks = TES["Rec/Track/Best"]
-    mcparticles = TES["MC/Particles"]
-    if not mcparticles: break
- ## <--- use this condition to know when the dst is finished
-    if not tracks.size(): continue
-    if not mcparticles.size(): continue
-    if not mcparticles.size(): continue
-    tracks_dict={}
-    particles_dict={}
-    tracks_dict['eta']=np.array([0],dtype=float)
-    tracks_dict['phi']=np.array([0],dtype=float)
-    tracks_dict['type']=np.array([0],dtype=float)
-    particles_dict['eta']=np.array([0],dtype=float)
-    particles_dict['phi']=np.array([0],dtype=float)
-    particles_dict['pid']=np.array([0],dtype=float)
-    tracks_index = 1
-    particles_index = 1
-    for j in xrange(tracks.size()):
-	    
-	    if not tracks[j]: continue
-	    tracks_index+=1
-	    tracks_dict['eta'][0]=tracks[j].momentum().eta()
-	    tracks_dict['phi'][0]=tracks[j].momentum().phi()
-	    tracks_dict['type'][0]=tracks[j].type()
-	    t.Branch('tracks_eta_'+str(tracks_index),tracks_dict['eta'],'tracks_eta_'+str(tracks_index)+'/D')
-	    t.Branch('tracks_phi_'+str(tracks_index),tracks_dict['phi'],'tracks_phi_'+str(tracks_index)+'/D')            
-            t.Branch('tracks_type_'+str(tracks_index),tracks_dict['type'],'tracks_type_'+str(tracks_index)+'/D')
-	   
-	   
-    for j in xrange(mcparticles.size()):
-	    if not mcparticles[j]: continue
-	    particles_index += 1
-	    
-	    particles_dict['eta'][0]=mcparticles[j].momentum().eta()
-	    particles_dict['phi'][0]=mcparticles[j].momentum().phi()
-	    particles_dict['pid'][0]=mcparticles[j].momentum().phi()    
+	dphi = []
+	deta = []
+	dr =[]
+	for j in xrange(tracks.size()):
+	#	if not particles[j].momentum(): continue
+	 	if not tracks[j].momentum(): continue
+		
+		dphi = []
+		deta = []
+		dr = []
+		for k in xrange(particles.size()):
+			if not particles[k].momentum(): continue
+			dphi.append(delPhi(tracks[j].momentum().phi(),particles[k].momentum().phi()))
+			deta.append(tracks[j].momentum().eta()-particles[k].momentum().eta())		
+			dr.append(deta[k]**2+dphi[k]**2)
+		for k in len(dr):
+			if dr[k]<.5:
+				print dr[k]
 
-	    t.Branch('particles_eta_'+str(particles_index),particles_dict['eta'],'particles_eta_'+str(particles_index)+'/D')
-	    t.Branch('particles_phi_'+str(particles_index),particles_dict['phi'],'particles_phi_'+str(particles_index)+'/D')
-	    t.Branch('particles_pid_'+str(particles_index),particles_dict['pid'],'particles_pid_'+str(particles_index)+'/D')     
-    t.Fill()
-t.Write()
-f.Close()
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
