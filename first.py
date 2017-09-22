@@ -5,7 +5,7 @@ import GaudiPython
 import os.path
 import ROOT
 import numpy as np
-
+import os
 
 DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
@@ -34,7 +34,7 @@ gaudi.initialize()
 ## Vou a facer unha ntupla con todos os eventos
 
  
-#f = ROOT.TFile('variables.root','recreate')
+f = ROOT.TFile('/scratch13/acasais/track_matching1.root','recreate')
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -117,11 +117,11 @@ for i in range(100):
 			t1.Fill()
 		else: unmatched_tracks += 1
 
-f2 = ROOT.TFile('variables.root','recreate')
+f2 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
 t2 = t1.Clone()
 t2.Write()
-f2.Close
-
+f2.Close()
+#os.system('rm /scratch13/acasais/track_matching1.root')
 t = f2.Get('aTree')
 
 				
