@@ -40,7 +40,7 @@ gaudi.initialize()
 
  
 f = ROOT.TFile('variables.root','recreate')
-t = ROOT.TTree('aTree','aTree')
+t1 = ROOT.TTree('aTree','aTree')
 
 
 #inicializo os arrays
@@ -53,14 +53,14 @@ part_pid = np.zeros(1, dtype=float)
 part_phi  = np.zeros(1, dtype=float)
 delta_r  = np.zeros(1, dtype=float)
 
-t.Branch('Event_id',evt_id,'Event_id/D')
-t.Branch('track_eta',trck_eta,'track_eta/D')
-t.Branch('track_phi',trck_phi,'track_phi/D')
-t.Branch('track_type',trck_type,'track_type/D')
-t.Branch('partitlce_eta',part_eta,'particle_eta/D')
-t.Branch('particle_phi',part_phi,'particle_phi/D')
-t.Branch('particle_pid',part_pid,'particle_pid/D')
-t.Branch('detal_r',delta_r,'detal_r/D')
+t1.Branch('Event_id',evt_id,'Event_id/D')
+t1.Branch('track_eta',trck_eta,'track_eta/D')
+t1.Branch('track_phi',trck_phi,'track_phi/D')
+t1.Branch('track_type',trck_type,'track_type/D')
+t1.Branch('partitlce_eta',part_eta,'particle_eta/D')
+t1.Branch('particle_phi',part_phi,'particle_phi/D')
+t1.Branch('particle_pid',part_pid,'particle_pid/D')
+t1.Branch('detal_r',delta_r,'detal_r/D')
 
 #arrancamos gaudi
 TES = gaudi.evtsvc()
@@ -120,10 +120,11 @@ for i in range(2):
 			part_phi[0]=particles[dr.index(min(dr))].momentum().eta()
 			part_pid[0]=particles[dr.index(min(dr))].momentum().eta()
 			delta_r[0] = dr[dr.index(min(dr))]
-			t.Fill()
+			t1.Fill()
 		else: unmatched_tracks += 1
 
-t.Write(); f.Close()				
+f = ROOT.TFile('variables.root','recreate')
+#t1.Write(); f.Close()				
 '''
 esta e unha forma de ver cousas que hai na DST 
 particle = mcparticles[0]
