@@ -34,7 +34,7 @@ gaudi.initialize()
 ## Vou a facer unha ntupla con todos os eventos
 
  
-f = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
+f1 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -116,13 +116,16 @@ for i in range(1000):
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
+gaudi.stop(); gaudi.finalize() 
 
-f2 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
-t2 = t1.Clone()
-t2.Write()
-f2.Close()
+
+#f2 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
+f1.cd()
+#t2 = t1.Clone()
+t1.Write()
+f1.Close()
 #os.system('rm /scratch13/acasais/track_matching1.root')
-t = f2.Get('aTree')
+
 
 				
 '''
