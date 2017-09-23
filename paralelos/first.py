@@ -5,7 +5,9 @@ import GaudiPython
 import os.path
 import ROOT
 import numpy as np
-import os
+from ntuplas import dst_file
+from sys import argv
+ 
 
 DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
@@ -15,16 +17,19 @@ DaVinci().DDDBtag  = "dddb-20130929-1"
 DaVinci().CondDBtag = "sim-20130522-1-vc-md100"
 
 ## INPUT DSTS, POTENTIALLY ADD MORE (estan todas incorporadas agora)
+
 dst_file = []
 for i in xrange(1,34):
-	i = str(i)
-	if int(i)<10: 
-		dst_file_name = '/scratch13/MC2012MB/00040748_0000000'+i+'_2.AllStreams.dst'
-	else: 
-		dst_file_name = '/scratch13/MC2012MB/00040748_000000'+i+'_2.AllStreams.dst'
-	
-	if os.path.isfile(dst_file_name):
-		dst_file.append(dst_file_name)
+        i = str(i)
+        if int(i)<10:
+                dst_file_name = '/scratch13/MC2012MB/00040748_0000000'+i+'_2.AllStreams.dst'
+        else:
+                dst_file_name = '/scratch13/MC2012MB/00040748_000000'+i+'_2.AllStreams.dst'
+
+        if os.path.isfile(dst_file_name):
+                dst_file.append(dst_file_name)
+
+dst_file = [dst_file[int(argv[1])]]
 DaVinci().Input = dst_file
 
 gaudi = GaudiPython.AppMgr()
@@ -34,7 +39,7 @@ gaudi.initialize()
 ## Vou a facer unha ntupla con todos os eventos
 
  
-f1 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
+f1 = ROOT.TFile('/scratch13/acasais/track_matching'+str(argv[1])+'.root','recreate')
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -70,7 +75,7 @@ def delPhi(x,y):
 
 event_id= 0
 unmatched_tracks = 0
-for i in range(1000):
+for i in range(100000000):
 	event_id += 1
 	print event_id
 	c1=gaudi.run(1)
@@ -112,19 +117,16 @@ for i in range(1000):
 			part_phi[0]=particles[indice].momentum().phi()
 			part_pid[0]=particles[indice].particleID().pid()
 			delta_r[0] = dr
-			if 'particleID' in dir(particles[indice].mother): part_moth_pid[0]=particles[indice].mother().particleID().pid()
+			if 'particleID' in dir(particles[indice].mother()): part_moth_pid[0]=particles[indice].mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
 gaudi.stop(); gaudi.finalize() 
 
 
-#f2 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
 f1.cd()
-#t2 = t1.Clone()
 t1.Write()
 f1.Close()
-#os.system('rm /scratch13/acasais/track_matching1.root')
 
 
 				
