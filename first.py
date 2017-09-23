@@ -70,7 +70,7 @@ def delPhi(x,y):
 
 event_id= 0
 unmatched_tracks = 0
-for i in range(1000):
+for i in range(5):
 	event_id += 1
 	print event_id
 	c1=gaudi.run(1)
@@ -112,19 +112,16 @@ for i in range(1000):
 			part_phi[0]=particles[indice].momentum().phi()
 			part_pid[0]=particles[indice].particleID().pid()
 			delta_r[0] = dr
-			if 'particleID' in dir(particles[indice].mother): part_moth_pid[0]=particles[indice].mother().particleID().pid()
+			if ('mother' in dir(particles[indice])) and ('particleID' in dir(particles[indice].mother())) and ('pid' in dir(particles[indice].mother().particleID())): part_moth_pid[0]=particles[indice].mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
 gaudi.stop(); gaudi.finalize() 
 
 
-#f2 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
 f1.cd()
-#t2 = t1.Clone()
 t1.Write()
 f1.Close()
-#os.system('rm /scratch13/acasais/track_matching1.root')
 
 
 				
