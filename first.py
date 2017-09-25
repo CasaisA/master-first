@@ -48,7 +48,8 @@ part_pid = np.zeros(1, dtype=int)
 part_moth_pid = np.zeros(1, dtype=int)
 part_phi  = np.zeros(1, dtype=float)
 delta_r  = np.zeros(1, dtype=float)
-
+delta_z = np.zeros(1, dtype=float)
+ 
 t1.Branch('Event_id',evt_id,'Event_id/I')
 t1.Branch('track_eta',trck_eta,'track_eta/D')
 t1.Branch('track_phi',trck_phi,'track_phi/D')
@@ -58,6 +59,7 @@ t1.Branch('particle_phi',part_phi,'particle_phi/D')
 t1.Branch('particle_pid',part_pid,'particle_pid/I')
 t1.Branch('particle_mother_pid',part_moth_pid,'particle_mother_pid/I')
 t1.Branch('delta_r',delta_r,'delta_r/D')
+t1.Branch('delta_z',delta_z,'delta_z/D')
 
 #arrancamos gaudi
 TES = gaudi.evtsvc()
@@ -85,6 +87,7 @@ for i in range(5):
 	#	if not particles[j].momentum(): continue
 	 	if not 'momentum' in dir(track): continue
 		dr = 100
+		dz = 1000
 		myparticles = particles
 		matched_particle = 0
 		for particle in myparticles:
@@ -93,12 +96,14 @@ for i in range(5):
 				dphi = delPhi(track.momentum().phi(),particle.momentum().phi())
 				deta = track.momentum().eta()-particle.momentum().eta()
 				dR = np.sqrt(deta**2+dphi**2)
-				if dR < dr:
+				dZ = np.abs(track.position().z()- particle.originVertex().position().z())
+				if dR < dr and dZ<dz:
 					dr = dR 
+					dz = dZ
 					matched_particle = particle
 			#		particles.remove(matched_particle)
 			
-		if dr<.5:
+		if dr<.5 and dz<100:
 			evt_id[0]=event_id
 			trck_eta[0]=track.momentum().eta()
 			trck_phi[0]=track.momentum().phi()
@@ -107,9 +112,10 @@ for i in range(5):
 			part_phi[0]=matched_particle.momentum().phi()
 			part_pid[0]=matched_particle.particleID().pid()
 			delta_r[0] = dr
+			delta_z[0] = dz
 			if matched_particle.mother():
 				part_moth_pid[0]=matched_particle.mother().particleID().pid()
-				print matched_particle.mother().particleID().pid()
+			#	print matched_particle.mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
