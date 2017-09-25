@@ -39,24 +39,24 @@ t1 = ROOT.TTree('aTree','aTree')
 
 
 #inicializo os arrays
-evt_id = np.zeros(1, dtype=float)
+evt_id = np.zeros(1, dtype=int)
 trck_eta = np.zeros(1, dtype=float)
 trck_phi = np.zeros(1, dtype=float)
-trck_type = np.zeros(1, dtype=float)
+trck_type = np.zeros(1, dtype=int)
 part_eta = np.zeros(1, dtype=float)
-part_pid = np.zeros(1, dtype=float)
+part_pid = np.zeros(1, dtype=int)
 part_moth_pid = np.zeros(1, dtype=int)
 part_phi  = np.zeros(1, dtype=float)
 delta_r  = np.zeros(1, dtype=float)
 
-t1.Branch('Event_id',evt_id,'Event_id/D')
+t1.Branch('Event_id',evt_id,'Event_id/I')
 t1.Branch('track_eta',trck_eta,'track_eta/D')
 t1.Branch('track_phi',trck_phi,'track_phi/D')
-t1.Branch('track_type',trck_type,'track_type/D')
+t1.Branch('track_type',trck_type,'track_type/I')
 t1.Branch('partitlce_eta',part_eta,'particle_eta/D')
 t1.Branch('particle_phi',part_phi,'particle_phi/D')
-t1.Branch('particle_pid',part_pid,'particle_pid/D')
-t1.Branch('particle_mother_pid',part_moth_pid,'particle_mother_pid/D')
+t1.Branch('particle_pid',part_pid,'particle_pid/I')
+t1.Branch('particle_mother_pid',part_moth_pid,'particle_mother_pid/I')
 t1.Branch('delta_r',delta_r,'delta_r/D')
 
 #arrancamos gaudi
@@ -86,6 +86,7 @@ for i in range(5):
 	 	if not 'momentum' in dir(track): continue
 		dr = 100
 		myparticles = particles
+		matched_particle = 0
 		for particle in myparticles:
 			
 			if  'momentum' in dir(particle):
@@ -118,6 +119,8 @@ gaudi.stop(); gaudi.finalize()
 f1.cd()
 t1.Write()
 f1.Close()
+f = ROOT.TFile('/scratch13/acasais/track_matching.root')
+t = f.Get('aTree')
 
 
 				
