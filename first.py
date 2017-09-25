@@ -81,38 +81,38 @@ for i in range(5):
         if not particles.size(): continue
 	
 	
-	for j in xrange(tracks.size()):
+	for track in tracks:
 	#	if not particles[j].momentum(): continue
-	 	if not 'momentum' in dir(tracks[j]):
-			trck_wo_p += 1	
+	 	if not 'momentum' in dir(track):
+			
 			continue
 		
 		dr = 100
 		
-		iterador = 0
-		for k in xrange(particles.size()):
+		myparticles = particles
+		for particle in myparticles:
 			
-			if  'momentum' in dir(particles[k]):
-				dphi = delPhi(tracks[j].momentum().phi(),particles[k].momentum().phi())
-				deta = tracks[j].momentum().eta()-particles[k].momentum().eta()
+			if  'momentum' in dir(particle):
+				dphi = delPhi(tracks.momentum().phi(),particle.momentum().phi())
+				deta = track.momentum().eta()-particle.momentum().eta()
 				dR = np.sqrt(deta**2+dphi**2)
 				if dR < dr:
 					dr = dR 
-					indice = iterador
+				matched_particle = particle
 				iterador+=1
 			else: 
 					
 				iterador+=1
 		if dr<.5:
 			evt_id[0]=event_id
-			trck_eta[0]=tracks[j].momentum().eta()
-			trck_phi[0]=tracks[j].momentum().phi()
-			trck_type[0]=tracks[j].type()
-			part_eta[0]=particles[indice].momentum().eta()
-			part_phi[0]=particles[indice].momentum().phi()
-			part_pid[0]=particles[indice].particleID().pid()
+			trck_eta[0]=track.momentum().eta()
+			trck_phi[0]=track.momentum().phi()
+			trck_type[0]=track.type()
+			part_eta[0]=matched_particle.momentum().eta()
+			part_phi[0]=matched_particle.momentum().phi()
+			part_pid[0]=matched_particle.particleID().pid()
 			delta_r[0] = dr
-			if ('mother' in dir(particles[indice])) and ('particleID' in dir(particles[indice].mother())) and ('pid' in dir(particles[indice].mother().particleID())): part_moth_pid[0]=particles[indice].mother().particleID().pid()
+			if matched_particle.mother(): part_moth_pid[0]=matched_particle.mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
