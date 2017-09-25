@@ -83,12 +83,8 @@ for i in range(5):
 	
 	for track in tracks:
 	#	if not particles[j].momentum(): continue
-	 	if not 'momentum' in dir(track):
-			
-			continue
-		
+	 	if not 'momentum' in dir(track): continue
 		dr = 100
-		
 		myparticles = particles
 		for particle in myparticles:
 			
@@ -99,10 +95,8 @@ for i in range(5):
 				if dR < dr:
 					dr = dR 
 				matched_particle = particle
-				iterador+=1
-			else: 
-					
-				iterador+=1
+				particles.remove(matched_particle)
+			
 		if dr<.5:
 			evt_id[0]=event_id
 			trck_eta[0]=track.momentum().eta()
