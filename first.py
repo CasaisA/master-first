@@ -89,13 +89,13 @@ for i in range(5):
 		for particle in myparticles:
 			
 			if  'momentum' in dir(particle):
-				dphi = delPhi(tracks.momentum().phi(),particle.momentum().phi())
+				dphi = delPhi(track.momentum().phi(),particle.momentum().phi())
 				deta = track.momentum().eta()-particle.momentum().eta()
 				dR = np.sqrt(deta**2+dphi**2)
 				if dR < dr:
 					dr = dR 
-				matched_particle = particle
-				particles.remove(matched_particle)
+					matched_particle = particle
+			#		particles.remove(matched_particle)
 			
 		if dr<.5:
 			evt_id[0]=event_id
@@ -106,7 +106,9 @@ for i in range(5):
 			part_phi[0]=matched_particle.momentum().phi()
 			part_pid[0]=matched_particle.particleID().pid()
 			delta_r[0] = dr
-			if matched_particle.mother(): part_moth_pid[0]=matched_particle.mother().particleID().pid()
+			if matched_particle.mother():
+				part_moth_pid[0]=matched_particle.mother().particleID().pid()
+				print matched_particle.mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
 		else: unmatched_tracks += 1
