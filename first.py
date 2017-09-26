@@ -6,6 +6,7 @@ import os.path
 import ROOT
 import numpy as np
 import os
+import sys
 
 DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
@@ -33,8 +34,7 @@ gaudi.initialize()
 ## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
 ## Vou a facer unha ntupla con todos os eventos
 
- 
-f1 = ROOT.TFile('/scratch13/acasais/track_matching.root','recreate')
+f1 = ROOT.TFile('/scratch13/acasais/track_matching'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate') 
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -77,11 +77,11 @@ def delZ(track,particle):
 	return np.abs(track.position().z()- particle.originVertex().position().z())
 
 
-event_id= 0
+if int(sys.argv[1])>1: gaudi.run(int(sys.argv[1])-1)
 unmatched_tracks = 0
-for i in range(5):
-	event_id += 1
-	print event_id
+for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
+	evt_id[0] += 1
+	#print event_id
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
         particles = TES["MC/Particles"]
@@ -115,21 +115,21 @@ for i in range(5):
 			unmatched_tracks+=1 
 			continue
 		particle = myParticle[0][2]
-		dr = myParticle[0][0]
-		dz = myParticle[0][1]
+		delta_r[0] = myParticle[0][0]
+		delta_z[0] = myParticle[0][1]
 				
 
 			
 		
-		evt_id[0]=event_id
+		#evt_id[0]=event_id, xa o definin antes
 		trck_eta[0]=track.momentum().eta()
 		trck_phi[0]=track.momentum().phi()
 		trck_type[0]=track.type()
 		part_eta[0]=particle.momentum().eta()
 		part_phi[0]=particle.momentum().phi()
 		part_pid[0]=particle.particleID().pid()
-		delta_r[0] = dr
-		delta_z[0] = dz
+		#delta_r[0] = dr
+		#delta_z[0] = dz
 		if particle.mother():
 			part_moth_pid[0]=particle.mother().particleID().pid()
 		else: part_moth_pid[0]=0
@@ -140,8 +140,9 @@ gaudi.stop(); gaudi.finalize()
 f1.cd()
 t1.Write()
 f1.Close()
-f = ROOT.TFile('/scratch13/acasais/track_matching.root')
-t = f.Get('aTree')
+if len(sys.argv):
+	f = ROOT.TFile('/scratch13/acasais/track_matching'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root')
+	
 
 
 				
