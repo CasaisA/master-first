@@ -51,17 +51,16 @@ delta_r  = np.zeros(1, dtype=float)
 delta_z = np.zeros(1, dtype=float)
  
 t1.Branch('Event_id',evt_id,'Event_id/I')
-t1.Branch('track_eta',trck_eta,'track_eta/D')
-t1.Branch('track_phi',trck_phi,'track_phi/D')
-t1.Branch('track_type',trck_type,'track_type/I')
-t1.Branch('partitlce_eta',part_eta,'particle_eta/D')
-t1.Branch('particle_phi',part_phi,'particle_phi/D')
-t1.Branch('particle_pid',part_pid,'particle_pid/I')
-t1.Branch('particle_mother_pid',part_moth_pid,'particle_mother_pid/I')
-t1.Branch('delta_r',delta_r,'delta_r/D')
-t1.Branch('delta_z',delta_z,'delta_z/D')
+t1.Branch('Track_eta',trck_eta,'Track_eta/D')
+t1.Branch('Track_phi',trck_phi,'Track_phi/D')
+t1.Branch('Track_type',trck_type,'Track_type/I')
+t1.Branch('Partitlce_eta',part_eta,'Particle_eta/D')
+t1.Branch('Particle_phi',part_phi,'Particle_phi/D')
+t1.Branch('Particle_pid',part_pid,'Particle_pid/I')
+t1.Branch('Mother_pid',part_moth_pid,'Particle_mother_pid/I')
+t1.Branch('Delta_r',delta_r,'Delta_r/D')
+t1.Branch('Delta_z',delta_z,'Delta_z/D')
 
-#arrancamos gaudi
 TES = gaudi.evtsvc()
 
 def delPhi(x,y):
@@ -92,10 +91,8 @@ for i in range(5):
 	
 	
 	for track in tracks:
-	#	if not particles[j].momentum(): continue
 	 	if not 'momentum' in dir(track): continue
 	
-		#myparticles = particles
 		
 		
 		list_R = map(lambda x: [delR(track,x),x],particles)
@@ -114,7 +111,9 @@ for i in range(5):
 					break
 		if len(myParticle)>0:
 			myParticle.sort()
-		if len(myParticle)==0: continue
+		if len(myParticle)==0:
+			unmatched_tracks+=1 
+			continue
 		particle = myParticle[0][2]
 		dr = myParticle[0][0]
 		dz = myParticle[0][1]
@@ -133,7 +132,6 @@ for i in range(5):
 		delta_z[0] = dz
 		if particle.mother():
 			part_moth_pid[0]=particle.mother().particleID().pid()
-		#	print matched_particle.mother().particleID().pid()
 		else: part_moth_pid[0]=0
 		t1.Fill()
 gaudi.stop(); gaudi.finalize() 
