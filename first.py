@@ -100,44 +100,42 @@ for i in range(5):
 		
 		list_R = map(lambda x: [delR(track,x),x],particles)
 		list_Z = map(lambda x: [delZ(track,x),x],particles)
-				
+		list_R = filter(lambda x: x[0]<0.5,list_R)
+		list_Z = filter(lambda x: x[0]<100,list_Z)		
 					
 			
 		list_R.sort(); list_Z.sort()
 		myParticle = []
-		for i in xrange(len(list_R)):
-			for j in xrange(len(list_Z)):
-				if list_R[i][1] == list_Z[j][1]:
-					myParticle.append([list_R[i][1],list_R[i][0],list_Z[j][0]])
+		
+		for R in list_R:
+			for Z in list_Z:
+				if R[1] == Z[1]:
+					myParticle.append([R[0],Z[0],R[1]])
 					break
-
-
-		Promedio  = 1000
-		for i in xrange(len(myParticle)):
-			promedio = myParticle[i][1]+.01*myParticle[i][2]
-			if promedio < Promedio:
-				particle = myParticle[i][0]
-				dr = myParticle[i][1]
-				dz = myParticle[i][2]
+		if len(myParticle)>0:
+			myParticle.sort()
+		if len(myParticle)==0: continue
+		particle = myParticle[0][2]
+		dr = myParticle[0][0]
+		dz = myParticle[0][1]
 				
 
 			
-		if dr<.5 and dz<100:
-			evt_id[0]=event_id
-			trck_eta[0]=track.momentum().eta()
-			trck_phi[0]=track.momentum().phi()
-			trck_type[0]=track.type()
-			part_eta[0]=particle.momentum().eta()
-			part_phi[0]=particle.momentum().phi()
-			part_pid[0]=particle.particleID().pid()
-			delta_r[0] = dr
-			delta_z[0] = dz
-			if particle.mother():
-				part_moth_pid[0]=particle.mother().particleID().pid()
-			#	print matched_particle.mother().particleID().pid()
-			else: part_moth_pid[0]=0
-			t1.Fill()
-		else: unmatched_tracks += 1
+		
+		evt_id[0]=event_id
+		trck_eta[0]=track.momentum().eta()
+		trck_phi[0]=track.momentum().phi()
+		trck_type[0]=track.type()
+		part_eta[0]=particle.momentum().eta()
+		part_phi[0]=particle.momentum().phi()
+		part_pid[0]=particle.particleID().pid()
+		delta_r[0] = dr
+		delta_z[0] = dz
+		if particle.mother():
+			part_moth_pid[0]=particle.mother().particleID().pid()
+		#	print matched_particle.mother().particleID().pid()
+		else: part_moth_pid[0]=0
+		t1.Fill()
 gaudi.stop(); gaudi.finalize() 
 
 
