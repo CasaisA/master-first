@@ -113,8 +113,8 @@ for i in range(5):
 
 
 		Promedio  = 1000
-		for i in xrange(5):
-			promedio = myParticle[i][1]+myParticle[i][2]
+		for i in xrange(len(myParticle)):
+			promedio = myParticle[i][1]+.01*myParticle[i][2]
 			if promedio < Promedio:
 				particle = myParticle[i][0]
 				dr = myParticle[i][1]
