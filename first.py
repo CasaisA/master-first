@@ -70,6 +70,14 @@ def delPhi(x,y):
 	else:
 		return np.abs(2*np.pi-np.abs(x-y))
 
+def delR(track,particle):
+	dphi = delPhi(track.momentum().phi(),particle.momentum().phi())
+        deta = track.momentum().eta()-particle.momentum().eta()
+        return np.sqrt(deta**2+dphi**2)
+def delZ(track,particle):
+	return np.abs(track.position().z()- particle.originVertex().position().z())
+
+
 event_id= 0
 unmatched_tracks = 0
 for i in range(5):
@@ -86,35 +94,46 @@ for i in range(5):
 	for track in tracks:
 	#	if not particles[j].momentum(): continue
 	 	if not 'momentum' in dir(track): continue
-		dr = 100
-		dz = 1000
-		myparticles = particles
-		matched_particle = 0
-		for particle in myparticles:
+	
+		#myparticles = particles
+		
+		
+		list_R = map(lambda x: [delR(track,x),x],particles)
+		list_Z = map(lambda x: [delZ(track,x),x],particles)
+				
+					
 			
-			if  'momentum' in dir(particle):
-				dphi = delPhi(track.momentum().phi(),particle.momentum().phi())
-				deta = track.momentum().eta()-particle.momentum().eta()
-				dR = np.sqrt(deta**2+dphi**2)
-				dZ = np.abs(track.position().z()- particle.originVertex().position().z())
-				if dR < dr and dZ<dz:
-					dr = dR 
-					dz = dZ
-					matched_particle = particle
-			#		particles.remove(matched_particle)
+		list_R.sort(); list_Z.sort()
+		myParticle = []
+		for i in xrange(len(list_R)):
+			for j in xrange(len(list_Z)):
+				if list_R[i][1] == list_Z[j][1]:
+					myParticle.append([list_R[i][1],list_R[i][0],list_Z[j][0]])
+					break
+
+
+		Promedio  = 1000
+		for i in xrange(5):
+			promedio = myParticle[i][1]+myParticle[i][2]
+			if promedio < Promedio:
+				particle = myParticle[i][0]
+				dr = myParticle[i][1]
+				dz = myParticle[i][2]
+				
+
 			
 		if dr<.5 and dz<100:
 			evt_id[0]=event_id
 			trck_eta[0]=track.momentum().eta()
 			trck_phi[0]=track.momentum().phi()
 			trck_type[0]=track.type()
-			part_eta[0]=matched_particle.momentum().eta()
-			part_phi[0]=matched_particle.momentum().phi()
-			part_pid[0]=matched_particle.particleID().pid()
+			part_eta[0]=particle.momentum().eta()
+			part_phi[0]=particle.momentum().phi()
+			part_pid[0]=particle.particleID().pid()
 			delta_r[0] = dr
 			delta_z[0] = dz
-			if matched_particle.mother():
-				part_moth_pid[0]=matched_particle.mother().particleID().pid()
+			if particle.mother():
+				part_moth_pid[0]=particle.mother().particleID().pid()
 			#	print matched_particle.mother().particleID().pid()
 			else: part_moth_pid[0]=0
 			t1.Fill()
