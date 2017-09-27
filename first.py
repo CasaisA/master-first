@@ -49,8 +49,10 @@ part_moth_pid = np.zeros(1, dtype=int)
 part_phi  = np.zeros(1, dtype=float)
 delta_r  = np.zeros(1, dtype=float)
 delta_z = np.zeros(1, dtype=float)
+run_id = np.zeros(1,dtype=int)
  
-t1.Branch('Event_id',evt_id,'Event_id/I')
+t1.Branch('Event_no',evt_id,'Event_no/I')
+t1.Branch('Run_no',run_id,'Run_no/I')
 t1.Branch('Track_eta',trck_eta,'Track_eta/D')
 t1.Branch('Track_phi',trck_phi,'Track_phi/D')
 t1.Branch('Track_type',trck_type,'Track_type/I')
@@ -77,14 +79,15 @@ def delZ(track,particle):
 	return np.abs(track.position().z()- particle.originVertex().position().z())
 
 
-if int(sys.argv[1])>1: gaudi.run(int(sys.argv[1])-1)
+if int(sys.argv[1])>1: 
+	gaudi.run(int(sys.argv[1])-1)
 unmatched_tracks = 0
 for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
-	evt_id[0] += 1
-	#print event_id
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
         particles = TES["MC/Particles"]
+	evt_id[0] = TES['Rec/Header'].evtNumber()
+	run_id[0] = TES['Rec/Header'].runNumber()
    	if not particles: break  ## <--- use this condition to know when the dst is finished
         if not tracks.size(): continue
         if not particles.size(): continue
@@ -120,8 +123,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				
 
 			
-		
-		#evt_id[0]=event_id, xa o definin antes
+		#o run id e evt id xa esta cuberto	
 		trck_eta[0]=track.momentum().eta()
 		trck_phi[0]=track.momentum().phi()
 		trck_type[0]=track.type()
