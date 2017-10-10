@@ -29,13 +29,10 @@ run_id = np.zeros(1,dtype=int)
  
 t1.Branch('Event_no',evt_id,'Event_no/I')
 t1.Branch('Run_no',run_id,'Run_no/I')
-t1.Branch('Track_eta',trck_eta,'Track_eta/D')
-t1.Branch('Track_phi',trck_phi,'Track_phi/D')
-t1.Branch('Track_type',trck_type,'Track_type/I')
-t1.Branch('Partitlce_eta',part_eta,'Particle_eta/D')
-t1.Branch('Particle_phi',part_phi,'Particle_phi/D')
-t1.Branch('Particle_pid',part_pid,'Particle_pid/I')
-t1.Branch('Mother_pid',part_moth_pid,'Particle_mother_pid/I')
+t1.Branch('Velo_eta',Velo_eta,'Velo_eta/D')
+t1.Branch('Velo_phi',velo_phi,'Velo_phi/D')
+t1.Branch('Long_eta',long_eta,'Long_eta/D')
+t1.Branch('Long_phi',long_phi,'long_phi/D')
 t1.Branch('Delta_r',delta_r,'Delta_r/D')
 t1.Branch('Delta_z',delta_z,'Delta_z/D')
 
@@ -61,12 +58,12 @@ unmatched_tracks = 0
 for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
-        particles = TES["MC/Particles"]
+       
 	evt_id[0] = TES['Rec/Header'].evtNumber()
 	run_id[0] = TES['Rec/Header'].runNumber()
-   	if not particles: break  ## <--- use this condition to know when the dst is finished
+   	
         if not tracks.size(): continue
-        if not particles.size(): continue
+        
 	
 	
 	for track in tracks:
