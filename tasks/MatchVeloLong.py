@@ -1,4 +1,3 @@
-#! /usr/:bin/env python
 # CONFIGURE DAVINCI (GENERAL CONFIGURATION OF THE JOB)
 
 
@@ -29,7 +28,7 @@ run_id = np.zeros(1,dtype=int)
  
 t1.Branch('Event_no',evt_id,'Event_no/I')
 t1.Branch('Run_no',run_id,'Run_no/I')
-t1.Branch('Velo_eta',Velo_eta,'Velo_eta/D')
+t1.Branch('Velo_eta',velo_eta,'Velo_eta/D')
 t1.Branch('Velo_phi',velo_phi,'Velo_phi/D')
 t1.Branch('Long_eta',long_eta,'Long_eta/D')
 t1.Branch('Long_phi',long_phi,'long_phi/D')
@@ -51,11 +50,12 @@ def delR(track,particle):
 def delZ(track,particle):
 	return np.abs(track.position().z()- particle.originVertex().position().z())
 
-
+'''
 if int(sys.argv[1])>1: 
 	gaudi.run(int(sys.argv[1])-1)
-unmatched_tracks = 0
-for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
+'''
+unmxoatched_tracks = 0
+for i in xrange(4):
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
        
@@ -65,34 +65,20 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
         if not tracks.size(): continue
         
 	
-	
+	velo_tracks = []
+	long_tracks = []
 	for track in tracks:
 	 	if not 'momentum' in dir(track): continue
-	
+		#print track.type
+		if track.type() == 1: velo_tracks.append(track)
+		if track.type() == 3: long_tracks.append(track)
+	for track in velo_tracks:
+		list_R = map(lambda x: [delR(track,x),x],long_tracks)
+		list_R = filter(lambda x: x[0]<0.2,list_R)
+	if len(list_R)>0: break
 		
+				
 		
-		list_R = map(lambda x: [delR(track,x),x],particles)
-		list_Z = map(lambda x: [delZ(track,x),x],particles)
-		list_R = filter(lambda x: x[0]<0.5,list_R)
-		list_Z = filter(lambda x: x[0]<100,list_Z)		
-					
-			
-		list_R.sort(); list_Z.sort()
-		myParticle = []
-		
-		for R in list_R:
-			for Z in list_Z:
-				if R[1] == Z[1]:
-					myParticle.append([R[0],Z[0],R[1]])
-					break
-		if len(myParticle)>0:
-			myParticle.sort()
-		if len(myParticle)==0:
-			unmatched_tracks+=1 
-			continue
-		particle = myParticle[0][2]
-		delta_r[0] = myParticle[0][0]
-		delta_z[0] = myParticle[0][1]
 				
 
 			
