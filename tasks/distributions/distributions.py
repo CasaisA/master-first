@@ -2,7 +2,7 @@
 from ROOT import *
 import numpy as np
 
-f = TFile('/scratch13/acasais/TrackMatching/TrackMatching.root')
+f = TFile('/scratch13/acasais/TrackMatching/TrackMatching1-5000.root')
 t = f.Get('aTree')
 
 #Fraction of Velo Tracks
@@ -29,7 +29,8 @@ heta = TH1F('eta','',300,0,8)
 t.Project('eta','Particle_eta','Track_type == 1')
 c1 = TCanvas()
 heta.Draw()
-hphi = TH1F('phi','',20,0,np.pi)
+hphi = TH1F('phi','',10,-np.pi,np.pi)
 t.Project('phi','Particle_phi','Track_type == 1')
 c2 = TCanvas()
 hphi.Draw()
+
