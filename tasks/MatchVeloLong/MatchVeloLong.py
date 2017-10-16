@@ -16,18 +16,50 @@ t1 = ROOT.TTree('aTree','aTree')
 evt_id = np.zeros(1, dtype=int)
 velo_eta = np.zeros(1, dtype=float)
 velo_phi = np.zeros(1, dtype=float)
+velo_px = np.zeros(1, dtype=float)
+velo_py = np.zeros(1, dtype=float)
+velo_pz = np.zeros(1, dtype=float)
+velo_pT = np.zeros(1, dtype=float)
+velo_P = np.zeros(1, dtype=float)
+
 long_eta = np.zeros(1, dtype=float)
 long_phi  = np.zeros(1, dtype=float)
+long_px = np.zeros(1, dtype=float) 
+long_py = np.zeros(1, dtype=float)
+long_pz = np.zeros(1, dtype=float)
+long_pT = np.zeros(1, dtype=float)
+long_P = np.zeros(1, dtype=float)
+
+
+
 delta_r  = np.zeros(1, dtype=float)
 
 run_id = np.zeros(1,dtype=int)
  
 t1.Branch('Event_no',evt_id,'Event_no/I')
 t1.Branch('Run_no',run_id,'Run_no/I')
+
 t1.Branch('Velo_eta',velo_eta,'Velo_eta/D')
 t1.Branch('Velo_phi',velo_phi,'Velo_phi/D')
+t1.Branch('Velo_px',velo_px,'Velo_px/D')
+t1.Branch('Velo_py',velo_py,'Velo_py/D')
+t1.Branch('Velo_pz',velo_pz,'Velo_pz/D')
+t1.Branch('Velo_P',velo_P,'Velo_P/D')
+t1.Branch('Velo_pT',velo_pT,'Velo_pT/D')
+
+t1.Branch('Long_px',long_px,'Long_px/D')
+t1.Branch('Long_py',long_py,'Long_py/D')
+t1.Branch('Long_pz',long_pz,'Long_pz/D')
+t1.Branch('Long_P',long_P,'Long_P/D')
+t1.Branch('Long_pT',long_pT,'Long_pT/D')
+
+
+
 t1.Branch('Long_eta',long_eta,'Long_eta/D')
 t1.Branch('Long_phi',long_phi,'long_phi/D')
+
+
+
 t1.Branch('Delta_r',delta_r,'Delta_r/D')
 
 
@@ -76,8 +108,21 @@ for i in xrange(int(sys.argv[2])-int(sys.argv[1])+1):
                 	if not 'momentum' in dir(long_track): continue
 			velo_eta[0]=velo_track.momentum().eta()
 			velo_phi[0]=velo_track.momentum().phi()
+			velo_px[0] = velo_track.momentum().x()
+			velo_py[0] = velo_track.momentum().y()
+			velo_pz[0] = velo_track.momentum().z()
+			velo_P[0] = np.sqrt(velo_px[0]**2+velo_py[0]**2+velo_pz[0]**2) 
+			velo_pT[0] = np.sqrt(velo_px[0]**2+velo_py[0]**2)
+
+			
 			long_eta[0]=long_track.momentum().eta()
 			long_phi[0]=long_track.momentum().phi()
+
+			long_px[0] = long_track.momentum().x()
+			long_py[0] = long_track.momentum().y()
+			long_pz[0] = long_track.momentum().z()
+			long_P[0] = np.sqrt(long_px[0]**2+long_py[0]**2+long_pz[0]**2) 
+			long_pT[0] = np.sqrt(long_px[0]**2+long_py[0]**2)
 			delta_r[0]=list_R[0][0]
 		
 			t1.Fill()
