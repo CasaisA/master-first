@@ -9,16 +9,16 @@ t = f.Get('aTree')
 ratio = float(t.GetEntries('Track_type==1'))/t.GetEntries()
 #Distribution of the IDs of the mcparticles amtched to VELO tracks
 
-h = TH1F('ID','',600,-300,300)
-t.Project('ID','Particle_pid','Track_type == 1')
-##
-c = TCanvas()
-h.Draw()
-for i in xrange(1,600):
-    bincont = h.GetBinContent(i)
-    if bincont>0:
-        print 'MCid= %d BinContent= %.2f' % (i-301,bincont)
-##
+# h = TH1F('ID','',600,-300,300)
+# t.Project('ID','Particle_pid','Track_type == 1')
+# ##
+# c = TCanvas()
+# h.Draw()
+# for i in xrange(1,600):
+#     bincont = h.GetBinContent(i)
+#     if bincont>0:
+#         print 'MCid= %d BinContent= %.2f' % (i-301,bincont)
+
 #momentum distribution of the particles matched to VELO
 
 # hP = TH1F('mom','',300,0,20000)
@@ -51,10 +51,9 @@ for evt in t:
 event_no = 0
 i = 0
 for evt in events:
-    
     if event_no != evt:
-        i+=1
-        if i*100./len(events) % 2 == 0: print i*100./len(events)
+        tevent=0
+        t2event=0
         event_no = evt
         tevent = t.CopyTree('Event_no=='+str(event_no))
         t2event = t2.CopyTree('Event_no=='+str(event_no))
@@ -63,9 +62,11 @@ for evt in events:
         	for ev2 in t2event:
                     if (ev1.Track_px == ev2.Long_px and ev1.Track_py == ev2.Long_py) or\
                        (ev1.Track_px == ev2.Velo_px and ev1.Track_py == ev2.Velo_px):
+                        
+                        
                         continue
                     else:
-                         
+                        
                         hP2.Fill(ev1.Particle_P)
 			
 			
