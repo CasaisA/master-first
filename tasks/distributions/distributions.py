@@ -40,6 +40,8 @@ t2 = f2.Get('aTree')
 hP2=TH1F('mom2','',300,0,20000)
 fhist =TFile('Histograma.root','recreate')
 
+
+# esto vai moi lento 
 event_no = 0
 events=[]
 #usar copytree!
@@ -50,10 +52,12 @@ for evt in t:
         
 event_no = 0
 i = 0
+tevent = TTree()
+t2event = TTree()
 for evt in events:
     if event_no != evt:
-        tevent=0
-        t2event=0
+        del tevent
+        del t2event
         event_no = evt
         tevent = t.CopyTree('Event_no=='+str(event_no))
         t2event = t2.CopyTree('Event_no=='+str(event_no))
