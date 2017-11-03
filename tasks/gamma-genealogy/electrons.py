@@ -34,7 +34,7 @@ gaudi.initialize()
 ## SKIP EVENTS WITH NO TRACKS RECONSTRUCTED
 ## Vou a facer unha ntupla con todos os eventos
 
-f1 = ROOT.TFile('/scratch13/acasais/track_matching'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate') 
+f1 = ROOT.TFile('/scratch13/acasais/electrons/electrons'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate') 
 t1 = ROOT.TTree('aTree','aTree')
 
 
@@ -65,14 +65,14 @@ run_id = np.zeros(1,dtype=int)
 t1.Branch('Event_no',evt_id,'Event_no/I')
 t1.Branch('Run_no',run_id,'Run_no/I')
 
-t1.Branch('Track_eta',trck_eta,'Track_eta/D')
-t1.Branch('Track_phi',trck_phi,'Track_phi/D')
-t1.Branch('Track_px',trck_px,'Track_px/D')
-t1.Branch('Track_py',trck_py,'Track_py/D')
-t1.Branch('Track_pz',trck_pz,'Track_pz/D')
-t1.Branch('Track_P',trck_P,'Track_P/D')
-t1.Branch('Track_pT',trck_pT,'Track_pT/D')
-t1.Branch('Track_type',trck_type,'Track_type/I')
+# t1.Branch('Track_eta',trck_eta,'Track_eta/D')
+# t1.Branch('Track_phi',trck_phi,'Track_phi/D')
+# t1.Branch('Track_px',trck_px,'Track_px/D')
+# t1.Branch('Track_py',trck_py,'Track_py/D')
+# t1.Branch('Track_pz',trck_pz,'Track_pz/D')
+# t1.Branch('Track_P',trck_P,'Track_P/D')
+# t1.Branch('Track_pT',trck_pT,'Track_pT/D')
+# t1.Branch('Track_type',trck_type,'Track_type/I')
 
 t1.Branch('Partitlce_eta',part_eta,'Particle_eta/D')
 t1.Branch('Particle_phi',part_phi,'Particle_phi/D')
@@ -84,8 +84,8 @@ t1.Branch('Particle_pT',part_pT,'Particle_pT/D')
 t1.Branch('Particle_pid',part_pid,'Particle_pid/I')
 t1.Branch('Mother_pid',part_moth_pid,'Particle_mother_pid/I')
 
-t1.Branch('Delta_r',delta_r,'Delta_r/D')
-t1.Branch('Delta_z',delta_z,'Delta_z/D')
+# t1.Branch('Delta_r',delta_r,'Delta_r/D')
+# t1.Branch('Delta_z',delta_z,'Delta_z/D')
 
 TES = gaudi.evtsvc()
 
@@ -99,63 +99,45 @@ def delR(track,particle):
 	dphi = delPhi(track.momentum().phi(),particle.momentum().phi())
         deta = track.momentum().eta()-particle.momentum().eta()
         return np.sqrt(deta**2+dphi**2)
+
 def delZ(track,particle):
 	return np.abs(track.position().z()- particle.originVertex().position().z())
+
+def particlePID(particle):
+	return particle.particleID().pid()
 
 
 if int(sys.argv[1])>1: 
 	gaudi.run(int(sys.argv[1])-1)
 unmatched_tracks = 0
+ev = 0
 for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
+	ev+=1
+	print ev
 	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
         particles = TES["MC/Particles"]
+	electrons = filter(lambda x: particlePID(x)==11,particles)
 	evt_id[0] = TES['Rec/Header'].evtNumber()
 	run_id[0] = TES['Rec/Header'].runNumber()
    	if not particles: break  ## <--- use this condition to know when the dst is finished
         if not tracks.size(): continue
-        if not particles.size(): continue
+        #if not electrons.size(): continue
 	
 	
-	for track in tracks:
-	 	if not 'momentum' in dir(track): continue
-	
-		
-		
-		list_R = map(lambda x: [delR(track,x),x],particles)
-		list_Z = map(lambda x: [delZ(track,x),x],particles)
-		list_R = filter(lambda x: x[0]<0.5,list_R)
-		list_Z = filter(lambda x: x[0]<100,list_Z)		
-					
-			
-		list_R.sort(); list_Z.sort()
-		myParticle = []
-		
-		for R in list_R:
-			for Z in list_Z:
-				if R[1] == Z[1]:
-					myParticle.append([R[0],Z[0],R[1]])
-					break
-		if len(myParticle)>0:
-			myParticle.sort()
-		if len(myParticle)==0:
-			unmatched_tracks+=1 
-			continue
-		particle = myParticle[0][2]
-		delta_r[0] = myParticle[0][0]
-		delta_z[0] = myParticle[0][1]
-				
 
 			
-		#o run id e evt id xa esta cuberto	
-		trck_eta[0]=track.momentum().eta()
-		trck_phi[0]=track.momentum().phi()
-		trck_px[0]=track.momentum().x()
-		trck_py[0]=track.momentum().y()
-		trck_pz[0]=track.momentum().z()
-		trck_pT[0]=np.sqrt(trck_px[0]**2+trck_py[0]**2)
-		trck_P[0]=np.sqrt(trck_px[0]**2+trck_py[0]**2+trck_pz[0]**2)
-		trck_type[0]=track.type()
+        #o run id e evt id xa esta cuberto	
+	# trck_eta[0]=track.momentum().eta()
+	# trck_phi[0]=track.momentum().phi()
+	# trck_px[0]=track.momentum().x()
+	# trck_py[0]=track.momentum().y()
+	# trck_pz[0]=track.momentum().z()
+	# trck_pT[0]=np.sqrt(trck_px[0]**2+trck_py[0]**2)
+	# trck_P[0]=np.sqrt(trck_px[0]**2+trck_py[0]**2+trck_pz[0]**2)
+	# trck_type[0]=track.type()
+	for particle in electrons:
+		
 		part_eta[0]=particle.momentum().eta()
 		part_phi[0]=particle.momentum().phi()
 		part_px[0]=particle.momentum().x()
