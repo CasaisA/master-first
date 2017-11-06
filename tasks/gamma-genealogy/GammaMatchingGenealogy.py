@@ -79,12 +79,13 @@ def findVertices(particle):
 
 
 
-if int(sys.argv[1])>1: 
-	gaudi.run(int(sys.argv[1])-1)
+# if int(sys.argv[1])>1: 
+# 	gaudi.run(int(sys.argv[1])-1)
 unmatched_tracks = 0
 frame_total=pd.DataFrame()
 ind=-1
-for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
+#for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
+for i in range(50):
 	vars = {}
 	c1=gaudi.run(5)
         tracks = TES["Rec/Track/Best"]
