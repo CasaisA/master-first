@@ -87,8 +87,9 @@ ind=-1
 #for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 for i in range(50):
 	vars = {}
-	c1=gaudi.run(5)
+	c1=gaudi.run(1)
         tracks = TES["Rec/Track/Best"]
+	tracks = filter(lambda x: x.type()==1,tracks)
         particles = TES["MC/Particles"]
 	photons = filter(lambda x: particlePID(x)==22,particles)
 	vars['evt_id'] = TES['Rec/Header'].evtNumber()
@@ -168,8 +169,8 @@ lista_nais=frame_total['list_mothers'].values.tolist()
 nais = []
 for nai in lista_nais:
 	nais.append(nai[0])
-with open('nais.txt', 'wb') as f:
-    pickle.dump(nais, f)
+with open('matching_malo.p', 'wb') as f:
+    pickle.dump(frame_total, f)
 
 hist = plt.hist(nais,bins=600,range=[-300,300])
 plt.xlabel('ID da nai')

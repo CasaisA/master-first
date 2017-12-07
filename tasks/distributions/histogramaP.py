@@ -8,8 +8,7 @@ t = f.Get('aTree')
 #vou a quitar aqueles eventos q estean na tupla de MatchVeloLong          
 f2 = TFile('/scratch13/acasais/MatchVeloLong/MatchVeloLong1-40000.root')
 t2 = f2.Get('aTree')
-
-fhist =TFile('HwoGhosts-notree.root','recreate')
+fera2 = TFile('eraseme2.root','RECREATE')
 hP=TH1F('p wo ghosts','',300,0,20000)
 heta = TH1F('eta wo ghosts','',500,0,8)
 hphi = TH1F('phi wo ghosts','',20,-np.pi,np.pi)
@@ -29,8 +28,8 @@ event_no = 0
 matches = 0 
 for evt in events:
     if event_no != evt:
-        tevent=0
-        t2event=0
+        
+        
         fera = TFile('eraseme.root','RECREATE')
         event_no = evt
         tevent = t3.CopyTree('Event_no=='+str(event_no))
@@ -49,13 +48,11 @@ for evt in events:
 			hP.Fill(ev1.Particle_P)
                         heta.Fill(ev1.Particle_eta)
 			hphi.Fill(ev1.Particle_phi)  
-#f.Close()
-#f2.Close()
-tevent = 0
-t2event = 0
-t = 0
-t2 = 0
-t3 = 0
+f.Close()
+f2.Close()
+
+
+fhist =TFile('HwoGhosts-notree.root','recreate')
 fhist.cd()
 hP.Write('P wo ghosts')
 heta.Write('eta wo ghosts')
