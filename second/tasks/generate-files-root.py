@@ -37,7 +37,7 @@ DaVinci().Input = dst_file
 f1 = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee-VELO-long'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate')
 t1 = TTree('pi-e_truth','pi-e_truth')
 t3 = TTree('kS0_truth','kS0_truth')
-t4 = TTree('pi-e_reco','pi-reco-reco')
+t4 = TTree('pi-e_reco','pi-e_reco')
 t2 = TTree('ks0products_reco','ks0products_reco')
 
 
@@ -328,7 +328,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
     mcparticles = TES["MC/Particles"]
     myprotos = TES["Rec/ProtoP/MyProtoParticles"]
     #nesta lista vou a meter os keys dos ks0 que atope
-    ks0_keys = []
+    #ks0_keys = []
     mother_key = 0
     products_keys_pipiee = []
     for particle in mcparticles:
@@ -342,7 +342,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 	    
 	    
 	    if particle.particleID().pid()==310 and (11 in products_pid) and (-11 in products_pid) and (211 in products_pid) and (-211 in products_pid):
-		    ks0_keys.append(particle.key())
+		    #ks0_keys.append(particle.key())
 		    #nesta lista van estar os keys dos pions e electrons asociados a este ks0
 		    products_keys_pipiee.append(map(lambda x: x.key(),products))
 	    	    ks0d['evt_id'][0]= TES['Rec/Header'].evtNumber()
@@ -463,63 +463,68 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 
 
 
-
-    parts_proto = map(lambda x: mcpar(x),myprotos)
-    parts_proto= filter(lambda x: x!=0,parts_proto)
-    proto_keys = map(lambda x: x.key,parts_proto)
-    ks0_reconstructed = False
+    protos_good = filter(lambda x: mcpar(x)!=0,myprotos)
+    #parts_proto = map(lambda x: mcpar(x),protos_good)
+    
+    proto_keys = map(lambda x: mcpar(x).key(),protos_good)
+    #ks0_reconstructed = False
     for index in xrange(len(products_keys_pipiee)):
 	    
-	    if all(x in proto_keys for x in products_keys_pipiee):
-		    index_ks0 =index
-		    ks0_reconstructed = True
-    parts_proto = filter(lambda x: x.key() in products_keys_pipiee[index_ks0],parts_proto)
-    for ks0par in parts_proto:
-	    if ks0par.particleID().pid()==11
+	    if all(x in proto_keys for x in products_keys_pipiee[index]):
+		    protos_temp = filter(lambda x: mcpar(x).key() in products_keys_pipiee[index],protos_good)
+		    #parts_proto_temp = map(lambda x: mcpar(x),protos_temp)
+		    #tracks_proto_temp=map(lambda x: x.track(),protos_temp)
+		    for ks0proto in protos_temp:
+			    ks0par = mcpar(ks0proto)
+			    ks0track = ks0proto.track()
+			    ks0_reco['evt_id']=TES['Rec/Header'].evtNumber()
+			    ks0_reco['run_id']=TES['Rec/Header'].runNumber()
+			    if ks0par.particleID().pid()==11:
 				    
-		ks0_recod['eminus_px']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_py']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_pz']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_p']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_pT']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_eta']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_phi']=np.zeros(1,dtype=float)
-		ks0_recod['eminus_trck_type']=np.zeros(1,dtype=float)
+				    ks0_recod['eminus_px'][0]=ks0track.momentum().x()
+				    ks0_recod['eminus_py'][0]=ks0track.momentum().y()
+				    ks0_recod['eminus_pz'][0]=ks0track.momentum().z()
+				    ks0_recod['eminus_p'][0]=ks0track.p()
+				    ks0_recod['eminus_pT'][0]ks0track.pt()
+				    ks0_recod['eminus_eta'][0]=ks0track.momentum().eta()
+				    ks0_recod['eminus_phi'][0]=ks0track.momentum().phi()
+				    ks0_recod['eminus_trck_type']=ks0track.type()
 
-            if ks0par.particleID().pid()==-11
+			    if ks0par.particleID().pid()==-11
 				    
-		ks0_recod['eplus_px']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_py']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_pz']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_p']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_pT']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_eta']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_phi']=np.zeros(1,dtype=float)
-		ks0_recod['eplus_trck_type']=np.zeros(1,dtype=float)
+				    ks0_recod['eplus_px'][0]=ks0track.momentum().x()
+				    ks0_recod['eplus_py'][0]=ks0track.momentum().y()
+				    ks0_recod['eplus_pz'][0]=ks0track.momentum().z()
+				    ks0_recod['eplus_p'][0]=ks0track.p()
+				    ks0_recod['eplus_pT'][0]ks0track.pt()
+				    ks0_recod['eplus_eta'][0]=ks0track.momentum().eta()
+				    ks0_recod['eplus_phi'][0]=ks0track.momentum().phi()
+				    ks0_recod['eplus_trck_type']=ks0track.type()
+			    if ks0par.particleID().pid()==211:
+				    
+				    ks0_recod['piplus_px'][0]=ks0track.momentum().x()
+				    ks0_recod['piplus_py'][0]=ks0track.momentum().y()
+				    ks0_recod['piplus_pz'][0]=ks0track.momentum().z()
+				    ks0_recod['piplus_p'][0]=ks0track.p()
+				    ks0_recod['piplus_pT'][0]ks0track.pt()
+				    ks0_recod['piplus_eta'][0]=ks0track.momentum().eta()
+				    ks0_recod['piplus_phi'][0]=ks0track.momentum().phi()
+				    ks0_recod['piplus_trck_type']=ks0track.type()
 
-            if ks0par.particleID().pid()==-211
-				    
-		ks0_recod['piminus_px']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_py']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_pz']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_p']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_pT']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_eta']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_phi']=np.zeros(1,dtype=float)
-		ks0_recod['piminus_trck_type']=np.zeros(1,dtype=float)
 
-            if ks0par.particleID().pid()==211
+			    if ks0par.particleID().pid()==-211:
 				    
-		ks0_recod['piplus_px']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_py']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_pz']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_p']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_pT']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_eta']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_phi']=np.zeros(1,dtype=float)
-		ks0_recod['piplus_trck_type']=np.zeros(1,dtype=float)
-    
-    t2.Fill()
+				    ks0_recod['piminus_px'][0]=ks0track.momentum().x()
+				    ks0_recod['piminus_py'][0]=ks0track.momentum().y()
+				    ks0_recod['piminus_pz'][0]=ks0track.momentum().z()
+				    ks0_recod['piminus_p'][0]=ks0track.p()
+				    ks0_recod['piminus_pT'][0]ks0track.pt()
+				    ks0_recod['piminus_eta'][0]=ks0track.momentum().eta()
+				    ks0_recod['piminus_phi'][0]=ks0track.momentum().phi()
+				    ks0_recod['eminus_trck_type']=ks0track.type()
+	
+			    
+			    t2.Fill()
 
 f1.cd()	
 f1.Write()
