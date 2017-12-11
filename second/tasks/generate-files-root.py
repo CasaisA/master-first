@@ -190,19 +190,35 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
     
     mother_key = 0
     for particle in mcparticles:
+	    #tipicas sentencias para evitar que unha particula corrupta entre no bucle
+	    if not particle: continue
+	    if not particle.momentum: continue
+ |
+	    if particle.particleID().pid()==310:
+	    	    ks0d['evt_id'][0]= TES['Rec/Header'].evtNumber()
+	    	    ks0d['px'][0]=particle.momentum().x()
+	    	    ks0d['py'][0]=particle.momentum().y()
+	    	    ks0d['pz'][0]=particle.momentum().z()
+	    	    ks0d['p'][0]=particle.p()
+	    	    ks0d['pT'][0]=particle.pt()
+	    	    ks0d['eta'][0]=particle.momentum().eta()
+	    	    ks0d['phi'][0]=particle.momentum().phi()
+	    	    ks0d['pid'][0]=particle.particleID().pid()
+	    	    ks0d['PV_x'][0]=particle.originVertex().position().x()
+	    	    ks0d['PV_y'][0]=particle.originVertex().position().y()
+	    	    ks0d['PV_z'][0]=particle.originVertex().position().z()
+	    	    ks0d['SV_x'][0]=particle.endVertices()[-1].position().x()
+	    	    ks0d['SV_y'][0]=particle.endVertices()[-1].position().y()
+	    	    ks0d['SV_z'][0]=particle.endVertices()[-1].position().z()
+		    t3.Fill()
+		    fill_ks0 = False
+		    cks0+=1
+		    if not cks0%100:
+			    t3.AutoSave()
 	    
 	    # #aqui miro que todas as variables esten ben e ademais que sexa un ks0
 	    
-	    fill_ks0= False
-	    flag_mother = True
-	    mother = particle.mother()
-	    if not mother: continue
-	    if  (not mother.endVertices())  or not len(mother.endVertices()):
-	    	    flag_mother = False
-	    products = []
-	    if flag_mother:
-		    products =map(lambda x: x.particleID().pid(),mother.endVertices()[-1].products())
-	    #print end_vertices
+	    
 	    
 	    if (211 in products) and (-211 in products) and (11 in products) and (-11 in products) and flag_mother:
 		    truthd_px[0]=particle.momentum().x()
@@ -224,36 +240,9 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    if mother_key != mother.key():
 			    mother_key = mother.key()
 			    fill_ks0 = True
-	    # flag_ks0 = True
-	    # products=[]
-	    # if  (not particle.endVertices()) or (not particle.originVertex()) or not len(particle.endVertices()):
-	    # 	    flag_ks0 = False
-	    # if flag_ks0:
-	    # 	    products =map(lambda x: x.particleID().pid(),particle.endVertices()[-1].products())
-	    # if particle.particleID().pid()==310 and (11 in products) and (-11 in products)\
-	    # 	   and (-211 in products) and (211 in products) and flag_ks0:
 	    
-	    if fill_ks0:
-	    	    ks0d['evt_id'][0]= TES['Rec/Header'].evtNumber()
-	    	    ks0d['px'][0]=mother.momentum().x()
-	    	    ks0d['py'][0]=mother.momentum().y()
-	    	    ks0d['pz'][0]=mother.momentum().z()
-	    	    ks0d['p'][0]=mother.p()
-	    	    ks0d['pT'][0]=mother.pt()
-	    	    ks0d['eta'][0]=mother.momentum().eta()
-	    	    ks0d['phi'][0]=mother.momentum().phi()
-	    	    ks0d['pid'][0]=mother.particleID().pid()
-	    	    ks0d['PV_x'][0]=mother.originVertex().position().x()
-	    	    ks0d['PV_y'][0]=mother.originVertex().position().y()
-	    	    ks0d['PV_z'][0]=mother.originVertex().position().z()
-	    	    ks0d['SV_x'][0]=mother.endVertices()[-1].position().x()
-	    	    ks0d['SV_y'][0]=mother.endVertices()[-1].position().y()
-	    	    ks0d['SV_z'][0]=mother.endVertices()[-1].position().z()
-		    t3.Fill()
-		    fill_ks0 = False
-		    cks0+=1
-		    if not cks0%100:
-			    t3.AutoSave()
+	    
+	   
 		    
 		   
     for proto in myprotos:
