@@ -114,6 +114,7 @@ t2.Branch('mother_phi',recod['mother_phi'],'mother_phi/D')
 t2.Branch('mother_eta',recod['mother_eta'],'mother_eta/D')
 
 ks0d['evt_id']=np.zeros(1,dtype=float)
+ks0d['run_id']=np.zeros(1,dtype=float)
 ks0d['px']=np.zeros(1,dtype=float)
 ks0d['py']=np.zeros(1,dtype=float)
 ks0d['pz']=np.zeros(1,dtype=float)
@@ -128,8 +129,38 @@ ks0d['PV_z']=np.zeros(1,dtype=float)
 ks0d['SV_x']=np.zeros(1,dtype=float)
 ks0d['SV_y']=np.zeros(1,dtype=float)
 ks0d['SV_z']=np.zeros(1,dtype=float)
+ks0['eminus_px']=np.zeros(1,dtype=float)
+ks0['eminus_py']=np.zeros(1,dtype=float)
+ks0['eminus_pz']=np.zeros(1,dtype=float)
+ks0['eminus_pT']=np.zeros(1,dtype=float)
+ks0['eminus_p']=np.zeros(1,dtype=float)
+ks0['eminus_eta']=np.zeros(1,dtype=float)
+ks0['eminus_phi']=np.zeros(1,dtype=float)
+ks0['piminus_px']=np.zeros(1,dtype=float)
+ks0['piminus_py']=np.zeros(1,dtype=float)
+ks0['piminus_pz']=np.zeros(1,dtype=float)
+ks0['piminus_pT']=np.zeros(1,dtype=float)
+ks0['piminus_p']=np.zeros(1,dtype=float)
+ks0['piminus_eta']=np.zeros(1,dtype=float)
+ks0['piminus_phi']=np.zeros(1,dtype=float)
+
+ks0['eplus_px']=np.zeros(1,dtype=float)
+ks0['eplus_py']=np.zeros(1,dtype=float)
+ks0['eplus_pz']=np.zeros(1,dtype=float)
+ks0['eplus_pT']=np.zeros(1,dtype=float)
+ks0['eplus_p']=np.zeros(1,dtype=float)
+ks0['eplus_eta']=np.zeros(1,dtype=float)
+ks0['eplus_phi']=np.zeros(1,dtype=float)
+ks0['piplus_px']=np.zeros(1,dtype=float)
+ks0['piplus_py']=np.zeros(1,dtype=float)
+ks0['piplus_pz']=np.zeros(1,dtype=float)
+ks0['piplus_pT']=np.zeros(1,dtype=float)
+ks0['piplus_p']=np.zeros(1,dtype=float)
+ks0['piplus_eta']=np.zeros(1,dtype=float)
+ks0['piplus_phi']=np.zeros(1,dtype=float)
 
 t3.Branch('evt_id',ks0d['evt_id'],'evt_id/D')
+t3.Branch('run_id',ks0d['run_id'],'run_id/D')
 t3.Branch('px',ks0d['px'],'px/D')
 t3.Branch('py',ks0d['py'],'py/D')
 t3.Branch('pz',ks0d['pz'],'pz/D')
@@ -144,6 +175,44 @@ t3.Branch('PV_z',ks0d['PV_z'],'PV_z/D')
 t3.Branch('SV_x',ks0d['SV_x'],'SV_x/D')
 t3.Branch('SV_y',ks0d['SV_y'],'SV_y/D')
 t3.Branch('SV_z',ks0d['SV_z'],'SV_z/D')
+
+t3.Branch('eminus_px',ks0d['eminus_px'],'eminus_px/D')
+t3.Branch('eminus_py',ks0d['eminus_py'],'eminus_py/D')
+t3.Branch('eminus_pz',ks0d['eminus_pz'],'eminus_pz/D')
+t3.Branch('eminus_pT',ks0d['eminus_pT'],'eminus_pT/D')
+t3.Branch('eminus_p',ks0d['eminus_p'],'eminus_p/D')
+t3.Branch('eminus_eta',ks0d['eminus_eta'],'eminus_eta/D')
+t3.Branch('eminus_phi',ks0d['eminus_phi'],'eminus_phi/D')
+
+t3.Branch('piminus_px',ks0d['piminus_px'],'piminus_px/D')
+t3.Branch('piminus_py',ks0d['piminus_py'],'piminus_py/D')
+t3.Branch('piminus_pz',ks0d['piminus_pz'],'piminus_pz/D')
+t3.Branch('piminus_pT',ks0d['piminus_pT'],'piminus_pT/D')
+t3.Branch('piminus_p',ks0d['piminus_p'],'piminus_p/D')
+t3.Branch('piminus_eta',ks0d['piminus_eta'],'piminus_eta/D')
+t3.Branch('piminus_phi',ks0d['piminus_phi'],'piminus_phi/D')
+
+t3.Branch('eplus_px',ks0d['eplus_px'],'eplus_px/D')
+t3.Branch('eplus_py',ks0d['eplus_py'],'eplus_py/D')
+t3.Branch('eplus_pz',ks0d['eplus_pz'],'eplus_pz/D')
+t3.Branch('eplus_pT',ks0d['eplus_pT'],'eplus_pT/D')
+t3.Branch('eplus_p',ks0d['eplus_p'],'eplus_p/D')
+t3.Branch('eplus_eta',ks0d['eplus_eta'],'eplus_eta/D')
+t3.Branch('eplus_phi',ks0d['eplus_phi'],'eplus_phi/D')
+
+t3.Branch('piplus_px',ks0d['piplus_px'],'piplus_px/D')
+t3.Branch('piplus_py',ks0d['piplus_py'],'piplus_py/D')
+t3.Branch('piplus_pz',ks0d['piplus_pz'],'piplus_pz/D')
+t3.Branch('piplus_pT',ks0d['piplus_pT'],'piplus_pT/D')
+t3.Branch('piplus_p',ks0d['piplus_p'],'piplus_p/D')
+t3.Branch('piplus_eta',ks0d['piplus_eta'],'piplus_eta/D')
+t3.Branch('piplus_phi',ks0d['piplus_phi'],'piplus_phi/D')
+
+
+
+
+
+
 
 ## MCTRUTH MATCHING
 myprotos = ChargedProtoParticleMaker("MyProtoParticles",
@@ -193,9 +262,13 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 	    #tipicas sentencias para evitar que unha particula corrupta entre no bucle
 	    if not particle: continue
 	    if not particle.momentum: continue
- |
-	    if particle.particleID().pid()==310:
+            products = map(lambda x: x,particle.endVertices()[-1].products())
+	    products = filter(lambda x: abs(x.particleID().pid())==11 or abs(x.particleID().pid())==211,products)
+	    products_pid = map(lambda x: x.particleID().pid(),products)
+	    if particle.particleID().pid()==310 and (11 in products_pid) and (-11 in products_pid) and (211 in products_pid) and (-211 in products_pid):
+		    
 	    	    ks0d['evt_id'][0]= TES['Rec/Header'].evtNumber()
+		    ks0d['run_id'][0]= TES['Rec/Header'].runNumber()
 	    	    ks0d['px'][0]=particle.momentum().x()
 	    	    ks0d['py'][0]=particle.momentum().y()
 	    	    ks0d['pz'][0]=particle.momentum().z()
@@ -215,9 +288,9 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    cks0+=1
 		    if not cks0%100:
 			    t3.AutoSave()
+		    
 	    
-	    # #aqui miro que todas as variables esten ben e ademais que sexa un ks0
-	    
+			    
 	    
 	    
 	    if (211 in products) and (-211 in products) and (11 in products) and (-11 in products) and flag_mother:
