@@ -330,7 +330,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
     #nesta lista vou a meter os keys dos ks0 que atope
     ks0_keys = []
     mother_key = 0
-    
+    products_keys_pipiee = []
     for particle in mcparticles:
 	    #tipicas sentencias para evitar que unha particula corrupta entre no bucle
 	    if not particle: continue
@@ -339,8 +339,12 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
             products = map(lambda x: x,particle.endVertices()[-1].products())
 	    products = filter(lambda x: abs(x.particleID().pid())==11 or abs(x.particleID().pid())==211,products)
 	    products_pid = map(lambda x: x.particleID().pid(),products)
+	    
+	    
 	    if particle.particleID().pid()==310 and (11 in products_pid) and (-11 in products_pid) and (211 in products_pid) and (-211 in products_pid):
 		    ks0_keys.append(particle.key())
+		    #nesta lista van estar os keys dos pions e electrons asociados a este ks0
+		    products_keys_pipiee.append(map(lambda x: x.key(),products))
 	    	    ks0d['evt_id'][0]= TES['Rec/Header'].evtNumber()
 		    ks0d['run_id'][0]= TES['Rec/Header'].runNumber()
 	    	    ks0d['px'][0]=particle.momentum().x()
@@ -455,26 +459,67 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    t4.Fill()
 		    creco+=1
 		    if not creco%100:
-			    t2.AutoSave()
+			    t4.AutoSave()
 
-		    if mother.key() in ks0_keys:
-			    ks0_recod['evt_id'][0]=TES['Rec/Header'].evtNumber()
-			    ks0_recod['run_id'][0]=TES['Rec/Header'].runNumber()
 
-			    if mcpar.particleID().pid()==11:
+
+
+    parts_proto = map(lambda x: mcpar(x),myprotos)
+    parts_proto= filter(lambda x: x!=0,parts_proto)
+    proto_keys = map(lambda x: x.key,parts_proto)
+    ks0_reconstructed = False
+    for index in xrange(len(products_keys_pipiee)):
+	    
+	    if all(x in proto_keys for x in products_keys_pipiee):
+		    index_ks0 =index
+		    ks0_reconstructed = True
+    parts_proto = filter(lambda x: x.key() in products_keys_pipiee[index_ks0],parts_proto)
+    for ks0par in parts_proto:
+	    if ks0par.particleID().pid()==11
 				    
-				    ks0_recod['eminus_px']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_py']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_pz']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_p']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_pT']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_eta']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_phi']=np.zeros(1,dtype=float)
-				    ks0_recod['eminus_trck_type']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_px']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_py']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_pz']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_p']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_pT']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_eta']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_phi']=np.zeros(1,dtype=float)
+		ks0_recod['eminus_trck_type']=np.zeros(1,dtype=float)
 
+            if ks0par.particleID().pid()==-11
+				    
+		ks0_recod['eplus_px']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_py']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_pz']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_p']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_pT']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_eta']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_phi']=np.zeros(1,dtype=float)
+		ks0_recod['eplus_trck_type']=np.zeros(1,dtype=float)
 
+            if ks0par.particleID().pid()==-211
+				    
+		ks0_recod['piminus_px']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_py']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_pz']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_p']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_pT']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_eta']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_phi']=np.zeros(1,dtype=float)
+		ks0_recod['piminus_trck_type']=np.zeros(1,dtype=float)
 
-
+            if ks0par.particleID().pid()==211
+				    
+		ks0_recod['piplus_px']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_py']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_pz']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_p']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_pT']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_eta']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_phi']=np.zeros(1,dtype=float)
+		ks0_recod['piplus_trck_type']=np.zeros(1,dtype=float)
+    
+    t2.Fill()
 
 f1.cd()	
 f1.Write()
