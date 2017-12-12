@@ -318,9 +318,11 @@ def get_mcpar(proto):
     if not ok: return 0
     return TES["MC/Particles"][LinkRef.objectKey()]
 
-cks0=0
+
 ctruth=0
 creco= 0
+cks0t=0
+cks0r=0
 counter = 0
 #RANGE IS AS BIG AS YOU WANT IT TO BE
 if int(sys.argv[1])>1: 
@@ -401,10 +403,10 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				    ks0d_piplus_phi[0]=product.momentum().phi()
 		    
 		    t3.Fill()
-
-		    cks0+=1
-		    #if not cks0%100:
-		    #	    t3.AutoSave()
+		    
+		    cks0t+=1
+		    if not cks0t%100:
+		    	    t3.AutoSave()
 		    
 	    
 			    
@@ -422,9 +424,9 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    truthd_runid[0]= TES['Rec/Header'].runNumber()
 		    t1.Fill()
 		    ctruth+=1
-		    #if not ctruth%100:
+		    if not ctruth%100:
 			    
-		    # 	    t1.AutoSave()
+		     	    t1.AutoSave()
 
 		    
 	    
@@ -463,8 +465,8 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    recod_trck_type[0]=track.type()
 		    t4.Fill()
 		    creco+=1
-		    #if not creco%100:
-		    #	    t4.AutoSave()
+		    if not creco%100:
+		    	    t4.AutoSave()
 
 
 
@@ -528,8 +530,12 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				    ks0_recod_piminus_phi[0]=ks0track.momentum().phi()
 				    ks0_recod_piminus_trck_type[0]=ks0track.type()
 	
-			    
+
+	            
 		    t2.Fill()
+		    cks0r+=1
+		    if not cks0r%100:
+		    	    t2.AutoSave()
 
 f1.cd()	
 f1.Write()
