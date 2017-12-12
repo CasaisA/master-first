@@ -6,7 +6,7 @@ import GaudiPython
 from Gaudi.Configuration import *
 import pandas as pd
 import math as m
-import pickle
+
 import os
 from ROOT import *
 import numpy as np
@@ -41,10 +41,7 @@ t4 = TTree('pi-e_reco','pi-e_reco')
 t2 = TTree('ks0products_reco','ks0products_reco')
 
 
-truthd = {}#non fai falla xa ... 
-ks0_recod = {}
-ks0d = {}
-recod ={}
+
 #t1
 truthd_px=np.zeros(1,dtype=float)
 truthd_py=np.zeros(1,dtype=float)
@@ -307,9 +304,7 @@ gaudi = GaudiPython.AppMgr()
 
 gaudi.initialize()
 TES = gaudi.evtsvc()
-#t1.SetAutoSave(-200)
-#t2.SetAutoSave(-200)
-#t3.SetAutoSave(-200)
+
 ## GET MCPAR FROM PROTO
 def get_mcpar(proto):
     LinkRef = GaudiPython.gbl.LHCb.LinkReference()
@@ -328,14 +323,13 @@ counter = 0
 if int(sys.argv[1])>1: 
 	gaudi.run(int(sys.argv[1])-1)
 for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
-    f1.cd()
+    #f1.cd()
     counter+=1
     c1 = gaudi.run(1)
     tracks = TES["Rec/Track/Best"]
     mcparticles = TES["MC/Particles"]
     myprotos = TES["Rec/ProtoP/MyProtoParticles"]
-    #nesta lista vou a meter os keys dos ks0 que atope
-    #ks0_keys = []
+    
     mother_key = 0
     products_keys_pipiee = []
     for particle in mcparticles:
@@ -349,9 +343,10 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 	    
 	    
 	    if particle.particleID().pid()==310 and (11 in products_pid) and (-11 in products_pid) and (211 in products_pid) and (-211 in products_pid):
-		    #ks0_keys.append(particle.key())
+		    
 		    #nesta lista van estar os keys dos pions e electrons asociados a este ks0
 		    products_keys_pipiee.append(map(lambda x: x.key(),products))
+		    #f2 = TFile('eraseme.root','recreate')
 	    	    ks0d_evt_id[0]= TES['Rec/Header'].evtNumber()
 		    ks0d_run_id[0]= TES['Rec/Header'].runNumber()
 	    	    ks0d_px[0]=particle.momentum().x()
@@ -412,6 +407,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 			    
 	    	    
 	    if abs(particle.particleID().pid())==11 or abs(particle.particleID().pid())==211:
+		    #f3 = TFile('eraseme.root','recreate')
 		    truthd_px[0]=particle.momentum().x()
 		    truthd_py[0]=particle.momentum().y()
 		    truthd_pz[0]=particle.momentum().z()
@@ -424,7 +420,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    truthd_runid[0]= TES['Rec/Header'].runNumber()
 		    t1.Fill()
 		    ctruth+=1
-		    if not ctruth%100:
+		    if not ctruth%1000:
 			    
 		     	    t1.AutoSave()
 
@@ -437,9 +433,10 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 	    if mcpar == 0: continue
 	    mother = mcpar.mother()
 	    if not mother: continue
-	    #if not len(mother.momentum()): continue
+	    
 	    
 	    if abs(mcpar.particleID().pid())==11 or abs(mcpar.particleID().pid())==211:
+		    #f4 = TFile('eraseme.root','recreate')
 		    recod_px[0]=track.momentum().x()
 		    recod_py[0]=track.momentum().y()
 		    recod_pz[0]=track.momentum().z()
@@ -465,16 +462,16 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    recod_trck_type[0]=track.type()
 		    t4.Fill()
 		    creco+=1
-		    if not creco%100:
+		    if not creco%1000:
 		    	    t4.AutoSave()
 
 
 
     protos_good = filter(lambda x: get_mcpar(x)!=0,myprotos)
-    #parts_proto = map(lambda x: mcpar(x),protos_good)
+    
     
     proto_keys = map(lambda x: get_mcpar(x).key(),protos_good)
-    #ks0_reconstructed = False
+    
     for index in xrange(len(products_keys_pipiee)):
 	    
 	    if all(x in proto_keys for x in products_keys_pipiee[index]):
@@ -487,7 +484,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 			    ks0_recod_evt_id[0]=TES['Rec/Header'].evtNumber()
 			    ks0_recod_run_id[0]=TES['Rec/Header'].runNumber()
 			    if ks0par.particleID().pid()==11:
-				    
+				    #f6 = TFile('eraseme.root','recreate')
 				    ks0_recod_eminus_px[0]=ks0track.momentum().x()
 				    ks0_recod_eminus_py[0]=ks0track.momentum().y()
 				    ks0_recod_eminus_pz[0]=ks0track.momentum().z()
@@ -534,17 +531,16 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 	            
 		    t2.Fill()
 		    cks0r+=1
-		    if not cks0r%100:
+		    if not cks0r%1000:
 		    	    t2.AutoSave()
 
 f1.cd()	
-f1.Write()
+f1.WriteTObject(t1)
+f1.WriteTObject(t2)
+f1.WriteTObject(t3)
+f1.WriteTObject(t4)
 f1.Close()	
-# with open('/scratch13/acasais/second/task1/truth-500runs.p', 'wb') as f:
-#     pickle.dump(mctruth, f)
 
-# with open('/scratch13/acasais/second/task1/reco-500runs.p', 'wb') as p:
-#     pickle.dump(reco, p)
   
 
 
