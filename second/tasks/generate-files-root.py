@@ -35,35 +35,35 @@ for i in xrange(4,71):
 DaVinci().Input = dst_file
 
 f1 = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee-VELO-long'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate')
-t1 = TTree('pi-e_truth','pi-e_truth')
+#t1 = TTree('pi-e_truth','pi-e_truth')
 t3 = TTree('kS0_truth','kS0_truth')
 t4 = TTree('pi-e_reco','pi-e_reco')
 t2 = TTree('ks0products_reco','ks0products_reco')
 
 
 
-#t1
-truthd_px=np.zeros(1,dtype=float)
-truthd_py=np.zeros(1,dtype=float)
-truthd_pz=np.zeros(1,dtype=float)
-truthd_pT=np.zeros(1,dtype=float)
-truthd_p=np.zeros(1,dtype=float)
-truthd_eta=np.zeros(1,dtype=float)
-truthd_phi=np.zeros(1,dtype=float)
-truthd_pid=np.zeros(1,dtype=float)
-truthd_evtid = np.zeros(1,dtype=float)
-truthd_runid=np.zeros(1,dtype=float)
+# #t1
+# truthd_px=np.zeros(1,dtype=float)
+# truthd_py=np.zeros(1,dtype=float)
+# truthd_pz=np.zeros(1,dtype=float)
+# truthd_pT=np.zeros(1,dtype=float)
+# truthd_p=np.zeros(1,dtype=float)
+# truthd_eta=np.zeros(1,dtype=float)
+# truthd_phi=np.zeros(1,dtype=float)
+# truthd_pid=np.zeros(1,dtype=float)
+# truthd_evtid = np.zeros(1,dtype=float)
+# truthd_runid=np.zeros(1,dtype=float)
 
-t1.Branch('evt_id',truthd_evtid,'evt_id/D')
-t1.Branch('run_id',truthd_runid,'run_id/D')
-t1.Branch('px',truthd_px,'px/D')
-t1.Branch('py',truthd_py,'py/D')
-t1.Branch('pz',truthd_pz,'pz/D')
-t1.Branch('p',truthd_p,'p/D')
-t1.Branch('pT',truthd_pT,'pT/D')
-t1.Branch('eta',truthd_eta,'eta/D')
-t1.Branch('phi',truthd_phi,'phi/D')
-t1.Branch('pid',truthd_pid,'pid/D')
+# t1.Branch('evt_id',truthd_evtid,'evt_id/D')
+# t1.Branch('run_id',truthd_runid,'run_id/D')
+# t1.Branch('px',truthd_px,'px/D')
+# t1.Branch('py',truthd_py,'py/D')
+# t1.Branch('pz',truthd_pz,'pz/D')
+# t1.Branch('p',truthd_p,'p/D')
+# t1.Branch('pT',truthd_pT,'pT/D')
+# t1.Branch('eta',truthd_eta,'eta/D')
+# t1.Branch('phi',truthd_phi,'phi/D')
+# t1.Branch('pid',truthd_pid,'pid/D')
 #t3
 
 ks0d_evt_id=np.zeros(1,dtype=float)
@@ -332,152 +332,153 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
     
     mother_key = 0
     products_keys_pipiee = []
+    mcparticles = filter(lambda x: x,mcparticles)
+    mcparticles = filter(lambda x: x.momentum(),mcparticles)
+    mcparticles = filter(lambda x: len(x.endVertices()),mcparticles)
+    mcparticles = filter(lambda x: x.particleID().pid()==310,mcparticles)
+    mcparticles = filter(lambda x: all([i in map(lambda y: y.particleID().pid(),x.endVertices()[-1].products()) for i in [11,-11,211,-211]]),mcparticles)
     for particle in mcparticles:
-	    #tipicas sentencias para evitar que unha particula corrupta entre no bucle
-	    if not particle: continue
-	    if not particle.momentum(): continue
-	    if not len(particle.endVertices()): continue
+	    
             products = map(lambda x: x,particle.endVertices()[-1].products())
 	    products = filter(lambda x: abs(x.particleID().pid())==11 or abs(x.particleID().pid())==211,products)
 	    products_pid = map(lambda x: x.particleID().pid(),products)
 	    
 	    
-	    if particle.particleID().pid()==310 and (11 in products_pid) and (-11 in products_pid) and (211 in products_pid) and (-211 in products_pid):
+	    
+	    #nesta lista van estar os keys dos pions e electrons asociados a este ks0
+	    products_keys_pipiee.append(map(lambda x: x.key(),products))
+	    ks0d_evt_id[0]= TES['Rec/Header'].evtNumber()
+	    ks0d_run_id[0]= TES['Rec/Header'].runNumber()
+	    ks0d_px[0]=particle.momentum().x()
+	    ks0d_py[0]=particle.momentum().y()
+	    ks0d_pz[0]=particle.momentum().z()
+	    ks0d_p[0]=particle.p()
+	    ks0d_pT[0]=particle.pt()
+	    ks0d_eta[0]=particle.momentum().eta()
+	    ks0d_phi[0]=particle.momentum().phi()
+	    ks0d_pid[0]=particle.particleID().pid()
+	    ks0d_PV_x[0]=particle.originVertex().position().x()
+	    ks0d_PV_y[0]=particle.originVertex().position().y()
+	    ks0d_PV_z[0]=particle.originVertex().position().z()
+	    ks0d_SV_x[0]=particle.endVertices()[-1].position().x()
+	    ks0d_SV_y[0]=particle.endVertices()[-1].position().y()
+	    ks0d_SV_z[0]=particle.endVertices()[-1].position().z()
+	    for product in products:
+	    
+	          if product.particleID().pid()==11:
+			  ks0d_eminus_px[0]=product.momentum().x()
+			  ks0d_eminus_py[0]=product.momentum().y()
+			  ks0d_eminus_pz[0]=product.momentum().z()
+			  ks0d_eminus_pT[0]=product.pt()
+			  ks0d_eminus_p[0]=product.p()
+			  ks0d_eminus_eta[0]=product.momentum().eta()
+			  ks0d_eminus_phi[0]=product.momentum().phi()
+		  if product.particleID().pid()==-11:
+			  ks0d_eplus_px[0]=product.momentum().x()
+			  ks0d_eplus_py[0]=product.momentum().y()
+			  ks0d_eplus_pz[0]=product.momentum().z()
+			  ks0d_eplus_pT[0]=product.pt()
+			  ks0d_eplus_p[0]=product.p()
+			  ks0d_eplus_eta[0]=product.momentum().eta()
+			  ks0d_eplus_phi[0]=product.momentum().phi()
+		  if product.particleID().pid()==-211:
+			  ks0d_piminus_px[0]=product.momentum().x()
+			  ks0d_piminus_py[0]=product.momentum().y()
+			  ks0d_piminus_pz[0]=product.momentum().z()
+			  ks0d_piminus_pT[0]=product.pt()
+			  ks0d_piminus_p[0]=product.p()
+			  ks0d_piminus_eta[0]=product.momentum().eta()
+			  ks0d_piminus_phi[0]=product.momentum().phi()
+		  if product.particleID().pid()==211:
+			  ks0d_piplus_px[0]=product.momentum().x()
+			  ks0d_piplus_py[0]=product.momentum().y()
+			  ks0d_piplus_pz[0]=product.momentum().z()
+			  ks0d_piplus_pT[0]=product.pt()
+			  ks0d_piplus_p[0]=product.p()
+			  ks0d_piplus_eta[0]=product.momentum().eta()
+			  ks0d_piplus_phi[0]=product.momentum().phi()	
 		    
-		    #nesta lista van estar os keys dos pions e electrons asociados a este ks0
-		    products_keys_pipiee.append(map(lambda x: x.key(),products))
-		    #f2 = TFile('eraseme.root','recreate')
-	    	    ks0d_evt_id[0]= TES['Rec/Header'].evtNumber()
-		    ks0d_run_id[0]= TES['Rec/Header'].runNumber()
-	    	    ks0d_px[0]=particle.momentum().x()
-	    	    ks0d_py[0]=particle.momentum().y()
-	    	    ks0d_pz[0]=particle.momentum().z()
-	    	    ks0d_p[0]=particle.p()
-	    	    ks0d_pT[0]=particle.pt()
-	    	    ks0d_eta[0]=particle.momentum().eta()
-	    	    ks0d_phi[0]=particle.momentum().phi()
-	    	    ks0d_pid[0]=particle.particleID().pid()
-	    	    ks0d_PV_x[0]=particle.originVertex().position().x()
-	    	    ks0d_PV_y[0]=particle.originVertex().position().y()
-	    	    ks0d_PV_z[0]=particle.originVertex().position().z()
-	    	    ks0d_SV_x[0]=particle.endVertices()[-1].position().x()
-	    	    ks0d_SV_y[0]=particle.endVertices()[-1].position().y()
-	    	    ks0d_SV_z[0]=particle.endVertices()[-1].position().z()
-		    for product in products:
-			    if product.particleID().pid()==11:
-				    ks0d_eminus_px[0]=product.momentum().x()
-				    ks0d_eminus_py[0]=product.momentum().y()
-				    ks0d_eminus_pz[0]=product.momentum().z()
-				    ks0d_eminus_pT[0]=product.pt()
-				    ks0d_eminus_p[0]=product.p()
-				    ks0d_eminus_eta[0]=product.momentum().eta()
-				    ks0d_eminus_phi[0]=product.momentum().phi()
-			    if product.particleID().pid()==-11:
-				    ks0d_eplus_px[0]=product.momentum().x()
-				    ks0d_eplus_py[0]=product.momentum().y()
-				    ks0d_eplus_pz[0]=product.momentum().z()
-				    ks0d_eplus_pT[0]=product.pt()
-				    ks0d_eplus_p[0]=product.p()
-				    ks0d_eplus_eta[0]=product.momentum().eta()
-				    ks0d_eplus_phi[0]=product.momentum().phi()
-			    if product.particleID().pid()==-211:
-				    ks0d_piminus_px[0]=product.momentum().x()
-				    ks0d_piminus_py[0]=product.momentum().y()
-				    ks0d_piminus_pz[0]=product.momentum().z()
-				    ks0d_piminus_pT[0]=product.pt()
-				    ks0d_piminus_p[0]=product.p()
-				    ks0d_piminus_eta[0]=product.momentum().eta()
-				    ks0d_piminus_phi[0]=product.momentum().phi()
-			    if product.particleID().pid()==211:
-				    ks0d_piplus_px[0]=product.momentum().x()
-				    ks0d_piplus_py[0]=product.momentum().y()
-				    ks0d_piplus_pz[0]=product.momentum().z()
-				    ks0d_piplus_pT[0]=product.pt()
-				    ks0d_piplus_p[0]=product.p()
-				    ks0d_piplus_eta[0]=product.momentum().eta()
-				    ks0d_piplus_phi[0]=product.momentum().phi()
+	    t3.Fill()
+	    # 	    #f3 = TFile('eraseme.root','recreate')
+	    # 	    truthd_px[0]=product.momentum().x()
+	    # 	    truthd_py[0]=product.momentum().y()
+	    # 	    truthd_pz[0]=product.momentum().z()
+	    # 	    truthd_pT[0]=product.pt()
+	    # 	    truthd_p[0]=product.p()
+	    # 	    truthd_eta[0]=product.momentum().eta()
+	    # 	    truthd_phi[0]=product.momentum().phi()
+	    # 	    truthd_pid[0]=product.particleID().pid()
+	    # 	    truthd_evtid[0] = TES['Rec/Header'].evtNumber()
+	    # 	    truthd_runid[0]= TES['Rec/Header'].runNumber()
+	    # 	    t1.Fill()
+	    # 	    ctruth+=1
+	    # 	    if not ctruth%1000:
+			    
+	    # 		    t1.AutoSave()
 		    
-		    t3.Fill()
-		    
-		    cks0t+=1
-		    if not cks0t%100:
-		    	    t3.AutoSave()
+	    cks0t+=1
+	    if not cks0t%100:
+		    t3.AutoSave()
 		    
 	    
 			    
 	    	    
-	    if abs(particle.particleID().pid())==11 or abs(particle.particleID().pid())==211:
-		    #f3 = TFile('eraseme.root','recreate')
-		    truthd_px[0]=particle.momentum().x()
-		    truthd_py[0]=particle.momentum().y()
-		    truthd_pz[0]=particle.momentum().z()
-		    truthd_pT[0]=particle.pt()
-		    truthd_p[0]=particle.p()
-		    truthd_eta[0]=particle.momentum().eta()
-		    truthd_phi[0]=particle.momentum().phi()
-		    truthd_pid[0]=particle.particleID().pid()
-		    truthd_evtid[0] = TES['Rec/Header'].evtNumber()
-		    truthd_runid[0]= TES['Rec/Header'].runNumber()
-		    t1.Fill()
-		    ctruth+=1
-		    if not ctruth%1000:
-			    
-		     	    t1.AutoSave()
-
-		    
 	    
+    	    
+    myprotos = filter(lambda x: get_mcpar(x)!=0,myprotos)
+    myprotos = filter(lambda x: get_mcpar(x).mother(),myprotos)
+    myprotos = filter(lambda x: any([get_mcpar(x).key() in lista for lista in products_keys_pipiee]),myprotos)
     for proto in myprotos:
 	    
 	    track = proto.track()
 	    mcpar = get_mcpar(proto)
-	    if mcpar == 0: continue
+	    
 	    mother = mcpar.mother()
-	    if not mother: continue
 	    
 	    
-	    if abs(mcpar.particleID().pid())==11 or abs(mcpar.particleID().pid())==211:
-		    #f4 = TFile('eraseme.root','recreate')
-		    recod_px[0]=track.momentum().x()
-		    recod_py[0]=track.momentum().y()
-		    recod_pz[0]=track.momentum().z()
-		    recod_pT[0]=track.pt()
-		    recod_p[0]=track.p()
-		    recod_eta[0]=track.momentum().eta()
-		    recod_phi[0]=track.momentum().phi()
-		    recod_pid[0]=mcpar.particleID().pid()
+	    
+	    
+           
+	    recod_px[0]=track.momentum().x()
+	    recod_py[0]=track.momentum().y()
+	    recod_pz[0]=track.momentum().z()
+	    recod_pT[0]=track.pt()
+	    recod_p[0]=track.p()
+	    recod_eta[0]=track.momentum().eta()
+	    recod_phi[0]=track.momentum().phi()
+	    recod_pid[0]=mcpar.particleID().pid()
 		    
-		    recod_px_truth[0]=mcpar.momentum().x()
-		    recod_py_truth[0]=mcpar.momentum().y()
-		    recod_pz_truth[0]=mcpar.momentum().z()
-		    recod_pT_truth[0]=mcpar.pt()
-		    recod_p_truth[0]=mcpar.p()
-		    recod_eta_truth[0]=mcpar.momentum().eta()
-		    recod_phi_truth[0]=mcpar.momentum().phi()
+	    recod_px_truth[0]=mcpar.momentum().x()
+	    recod_py_truth[0]=mcpar.momentum().y()
+	    recod_pz_truth[0]=mcpar.momentum().z()
+	    recod_pT_truth[0]=mcpar.pt()
+	    recod_p_truth[0]=mcpar.p()
+	    recod_eta_truth[0]=mcpar.momentum().eta()
+	    recod_phi_truth[0]=mcpar.momentum().phi()
 		    
 
 
 		    
-		    recod_evtid[0] = TES['Rec/Header'].evtNumber()
-		    recod_runid[0]= TES['Rec/Header'].runNumber()
-		    recod_trck_type[0]=track.type()
-		    t4.Fill()
-		    creco+=1
-		    if not creco%1000:
-		    	    t4.AutoSave()
+	    recod_evtid[0] = TES['Rec/Header'].evtNumber()
+	    recod_runid[0]= TES['Rec/Header'].runNumber()
+	    recod_trck_type[0]=track.type()
+	    t4.Fill()
+	    creco+=1
+	    if not creco%1000:
+		    t4.AutoSave()
 
 
 
-    protos_good = filter(lambda x: get_mcpar(x)!=0,myprotos)
     
     
-    proto_keys = map(lambda x: get_mcpar(x).key(),protos_good)
+    
+    proto_keys = map(lambda x: get_mcpar(x).key(),myprotos)
     
     for index in xrange(len(products_keys_pipiee)):
 	    
 	    if all(x in proto_keys for x in products_keys_pipiee[index]):
-		    protos_temp = filter(lambda x: get_mcpar(x).key() in products_keys_pipiee[index],protos_good)
-		    #parts_proto_temp = map(lambda x: mcpar(x),protos_temp)
-		    #tracks_proto_temp=map(lambda x: x.track(),protos_temp)
+		    protos_temp = filter(lambda x: get_mcpar(x).key() in products_keys_pipiee[index],myprotos)
+		    
 		    for ks0proto in protos_temp:
 			    ks0par = get_mcpar(ks0proto)
 			    ks0track = ks0proto.track()
@@ -535,7 +536,7 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    	    t2.AutoSave()
 
 f1.cd()	
-f1.WriteTObject(t1)
+#f1.WriteTObject(t1)
 f1.WriteTObject(t2)
 f1.WriteTObject(t3)
 f1.WriteTObject(t4)
