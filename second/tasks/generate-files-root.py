@@ -173,10 +173,27 @@ t3.Branch('piplus_phi',ks0d_piplus_phi,'piplus_phi/D')
 
 
 #t2
-
-
 ks0_recod_evt_id=np.zeros(1,dtype=float)
 ks0_recod_run_id=np.zeros(1,dtype=float)
+
+ks0_recod_px_truth=np.zeros(1,dtype=float)
+ks0_recod_py_truth=np.zeros(1,dtype=float)
+ks0_recod_pz_truth=np.zeros(1,dtype=float)
+ks0_recod_pT_truth=np.zeros(1,dtype=float)
+ks0_recod_p_truth=np.zeros(1,dtype=float)
+ks0_recod_eta_truth=np.zeros(1,dtype=float)
+ks0_recod_phi_truth=np.zeros(1,dtype=float)
+
+ks0_recod_PV_x_truth=np.zeros(1,dtype=float)
+ks0_recod_PV_y_truth=np.zeros(1,dtype=float)
+ks0_recod_PV_z_truth=np.zeros(1,dtype=float)
+ks0_recod_SV_x_truth=np.zeros(1,dtype=float)
+ks0_recod_SV_y_truth=np.zeros(1,dtype=float)
+ks0_recod_SV_z_truth=np.zeros(1,dtype=float)
+
+
+
+
 
 ks0_recod_eminus_px=np.zeros(1,dtype=float)
 ks0_recod_eminus_py=np.zeros(1,dtype=float)
@@ -186,6 +203,9 @@ ks0_recod_eminus_pT=np.zeros(1,dtype=float)
 ks0_recod_eminus_eta=np.zeros(1,dtype=float)
 ks0_recod_eminus_phi=np.zeros(1,dtype=float)
 ks0_recod_eminus_trck_type=np.zeros(1,dtype=float)
+
+
+
 
 ks0_recod_eplus_px=np.zeros(1,dtype=float)
 ks0_recod_eplus_py=np.zeros(1,dtype=float)
@@ -218,6 +238,21 @@ ks0_recod_piplus_trck_type=np.zeros(1,dtype=float)
 t2.Branch('evt_id',ks0_recod_evt_id,'evt_id/D')
 t2.Branch('run_id',ks0_recod_run_id,'run_id/D')
 
+t2.Branch('px_truth',ks0_recod_px_truth,'px_truth/D')
+t2.Branch('py_truth',ks0_recod_py_truth,'py_truth/D')
+t2.Branch('pz_truth',ks0_recod_pz_truth,'pz_truth/D')
+
+t2.Branch('p_truth',ks0_recod_p_truth,'p_truth/D')
+t2.Branch('pT_truth',ks0_recod_pT_truth,'pT_truth/D')
+t2.Branch('phi_truth',ks0_recod_phi_truth,'phi_truth/D')
+t2.Branch('eta_truth',ks0_recod_eta_truth,'eta_truth/D')
+t2.Branch('PV_x',ks0_recod_PV_x_truth,'PV_x/D')
+t2.Branch('PV_y',ks0_recod_PV_y_truth,'PV_y/D')
+t2.Branch('PV_z',ks0_recod_PV_z_truth,'PV_z/D')
+
+t2.Branch('SV_x',ks0_recod_SV_x_truth,'SV_x/D')
+t2.Branch('SV_y',ks0_recod_SV_y_truth,'SV_y/D')
+t2.Branch('SV_z',ks0_recod_SV_z_truth,'SV_z/D')
 
 t2.Branch('eminus_px',ks0_recod_eminus_px,'eminus_px/D')
 t2.Branch('eminus_py',ks0_recod_eminus_py,'eminus_py/D')
@@ -490,9 +525,28 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 		    
 		    for ks0proto in protos_temp:
 			    ks0par = get_mcpar(ks0proto)
+			    mother = ks0par.mother()
 			    ks0track = ks0proto.track()
 			    ks0_recod_evt_id[0]=TES['Rec/Header'].evtNumber()
 			    ks0_recod_run_id[0]=TES['Rec/Header'].runNumber()
+
+			    ks0_recod_px_truth[0]=mother.momentum().x()
+			    ks0_recod_py_truth[0]=mother.momentum().y()
+			    ks0_recod_pz_truth[0]=mother.momentum().z()
+			   
+			    ks0_recod_pT_truth[0]=mother.pt()
+			    ks0_recod_p_truth[0]=mother.p()
+			    ks0_recod_eta_truth[0] = mother.momentum().eta()
+			    ks0_recod_phi_truth[0]=mother.momentum().phi()
+
+			    ks0_recod_PV_x_truth[0]=mother.originVertex().position().x()
+			    ks0_recod_PV_y_truth[0]=mother.originVertex().position().y()
+			    ks0_recod_PV_z_truth[0]=mother.originVertex().position().z()
+			    
+			    ks0_recod_SV_x_truth[0]=mother.endVertices()[-1].position().x()
+			    ks0_recod_SV_y_truth[0]=mother.endVertices()[-1].position().y()
+			    ks0_recod_SV_z_truth[0]=mother.endVertices()[-1].position().z()
+			    
 			    if ks0par.particleID().pid()==11:
 				    #f6 = TFile('eraseme.root','recreate')
 				    ks0_recod_eminus_px[0]=ks0track.momentum().x()
