@@ -18,23 +18,32 @@ DaVinci().Simulation = True
 ## These are for data tags (magnet up or down?)
 DaVinci().DDDBtag  = "dddb-20130929-1"
 DaVinci().CondDBtag = "sim-20130522-1-vc-mu100"
-sys.argv = [0,1,1000]
+#sys.argv = [0,1,1000]
 ## INPUT DSTS, POTENTIALLY ADD MORE
-magnet='up'
+magnet= str(sys.argv[3])
 dst_file = []
-for i in xrange(4,71):
+for i in xrange(1,71):
         i = str(i)
-        if int(i)<10:
-                dst_file_name = '/scratch29/KsPiPiee/'+magnet+'00037694_0000000'+i+'_1.allstreams.dst'
-        else:
-                dst_file_name = '/scratch29/KsPiPiee/'+magnet+'/00037694_000000'+i+'_1.allstreams.dst'
-
+	if magnet=='up':
+		if int(i)<10:
+			dst_file_name = '/scratch29/KsPiPiee/'+magnet+'00037694_0000000'+i+'_1.allstreams.dst'
+		else:
+			dst_file_name = '/scratch29/KsPiPiee/'+magnet+'/00037694_000000'+i+'_1.allstreams.dst'
+	if magnet =='down':
+		if int(i)<10:
+			dst_file_name = '/scratch29/KsPiPiee/'+magnet+'00037700_0000000'+i+'_1.allstreams.dst'
+		else:
+			dst_file_name = '/scratch29/KsPiPiee/'+magnet+'/00037700_000000'+i+'_1.allstreams.dst'
+		
         if os.path.isfile(dst_file_name):
                 dst_file.append(dst_file_name)
 
+if magnet=='down':
+	dst_file.append('/scratch29/KsPiPiee/down/MC_2012_34124015_Beam4000GeV2012MagDownNu2.5Pythia8_Sim08e_Digi13_Trig0x409f0045_Reco14a_Stripping20NoPrescalingFlagged_ALLSTREAMS.dst')
+
 DaVinci().Input = dst_file
 
-f1 = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee-VELO-long'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate')
+f1 = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_'+magnet+'_'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate')
 #t1 = TTree('pi-e_truth','pi-e_truth')
 t3 = TTree('kS0_truth','kS0_truth')
 t4 = TTree('pi-e_reco','pi-e_reco')
