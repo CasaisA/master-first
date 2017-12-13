@@ -17,25 +17,21 @@ from ROOT import *
 def pack(string):
     return '('+string+')'
 
-print pack('ola')
+
     
 
 
 
 fup = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_up_1-1000000.root')
 fdown = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_down_1-1000000.root')
+f = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee.root')
 
-tks0t = fup.Get('kS0_truth')
-tks0r = fup.Get('ks0products_reco')
-treco = fup.Get('pi-e_reco')
+tks0t = f.Get('kS0_truth')
+tks0r_alltracks = f.Get('ks0products_reco')
+treco = f.Get('pi-e_reco')
+ferase = TFile('eraseme.root','recreate')
+tks0r = tks0r_alltracks.CopyTree('(eminus_trck_type==1||eminus_trck_type==3)&&(eplus_trck_type==1||eplus_trck_type==3)&&(piminus_trck_type==1||piminus_trck_type==3)&&(piplus_trck_type==1||piplus_trck_type==3)')
 
-
-
-
-
-
-
-    
 
 #calculo de eficiencias
 effs= {}
@@ -46,6 +42,10 @@ min = 0
 no_bins = 10
 pTs = range(step,max+step,step)
 
+long2 = 'piplus_trck_type==3 && piminus_trck_type==3'
+long3 = long2+' && '+pack('eplus_trck_type==3 || eminus_trck_type==3')
+long4 = long2+' && '+pack('eplus_trck_type==3 && eminus_trck_type==3')
+    
 for pT in pTs:
     max = pT
     no_ents_e = np.float64(tks0t.GetEntries(pack('eminus_pT>'+str(min)+'&& eminus_pT<'+str(max))+'||'+pack('eplus_pT>'+str(min)+'&&eplus_pT<'+str(max))))
@@ -69,17 +69,21 @@ for pT in pTs:
     err_eff['pi','velo',pT]= m.sqrt(effs['pi','velo',pT]*(1-effs['pi','velo',pT])/no_e_truth)
     err_eff['pi','long',pT]= m.sqrt(effs['pi','long',pT]*(1-effs['pi','long',pT])/no_e_truth)
 
-    long2 = 'piplus_trck_type==3 && piminus_trck_type==3'
-    long3 = long2+' && '+pack('eplus_trck_type==3 || eminus_trck_type==3')
-    long4 = long2+' && '+pack('eplus_trck_type==3 && eminus_trck_type==3')
     
-    effs['ks0','long2',pT]=tks0r.GetEntries(long2)/np.float64(tks0t.GetEntries())
-    effs['ks0','long3',pT]=tks0r.GetEntries(long3)/np.float64(tks0t.GetEntries())
-    effs['ks0','long4',pT]=tks0r.GetEntries(long4)/np.float64(tks0t.GetEntries())
+    effs['ks0','long2',pT]=tks0r.GetEntries(pack(long2)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
+                            np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    effs['ks0','long3',pT]=tks0r.GetEntries(pack(long3)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
+                            np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    effs['ks0','long4',pT]=tks0r.GetEntries(pack(long4)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
+                            np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
 
-    err_eff['ks0','long2',pT]= m.sqrt(effs['ks0','long2',pT]*(1-effs['ks0','long2',pT])/tks0t.GetEntries())
-    err_eff['ks0','long3',pT]= m.sqrt(effs['ks0','long3',pT]*(1-effs['ks0','long3',pT])/tks0t.GetEntries())
-    err_eff['ks0','long4',pT]= m.sqrt(effs['ks0','long4',pT]*(1-effs['ks0','long4',pT])/tks0t.GetEntries())
+    err_eff['ks0','long2',pT]= m.sqrt(effs['ks0','long2',pT]*(1-effs['ks0','long2',pT])/\
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))       
+    err_eff['ks0','long3',pT]= m.sqrt(effs['ks0','long3',pT]*(1-effs['ks0','long3',pT])/\
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
+                                      
+    err_eff['ks0','long4',pT]= m.sqrt(effs['ks0','long4',pT]*(1-effs['ks0','long4',pT])/\
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
     
     
     min = pT
@@ -92,41 +96,78 @@ for pT in pTs:
     min = pT
 
 #reconstruo algunha masa
-final=final.reset_index(drop=True)
-ks0_reco = ks0_reco.reset_index(drop=True)
-ks0_truth = ks0_truth.reset_index(drop=True)
-min = 0
-max = 4
-m = []
-for max in range(4,len(final)+4,4):
-    temp = final[(final.index>=min)&(final.index<max)]
-    min = max
-    #print len(temp)
-    if temp['no_long'].values[0]!=4: continue
-    px = np.sum(temp['px'].values)
-    py = np.sum(temp['py'].values)
-    pz = np.sum(temp['pz'].values)
-    p2 = px**2+py**2+pz**2
-    E = 0
-    for i in xrange(len(temp)):
-        if abs(temp.iloc()[i]['pid'])==11:
-            mi = 0.511
-        if abs(temp.iloc()[i]['pid'])==211:
-            mi = 139.57
-        E+=np.sqrt(temp.iloc()[i]['p']**2+mi**2)
-    m.append(np.sqrt(E**2-p2))
+#por agora so collo os eventos nos que haxa
+#catro trazas long
+# tlongs = tks0r.CopyTree(long4)
+mass = []
+# for evt in tlongs:
+#     px = evt.eminus_px+evt.eplus_px+evt.piplus_px+evt.piminus_px
+#     py = evt.eminus_py+evt.eplus_py+evt.piplus_py+evt.piminus_py
+#     pz = evt.eminus_pz+evt.eplus_pz+evt.piplus_pz+evt.piminus_pz
+#     p = m.sqrt(px**2+py**2+pz**2)
+#     E = m.sqrt(evt.eminus_p**2+0.511**2)+m.sqrt(evt.eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+#     mass.append(m.sqrt(E**2-p**2))
     
 
+f = TFile('eraseme.root','recreate')
+tlong3=tks0r.CopyTree(long3+'&&!'+pack(long4))
+for evt in tlong3:
+        ux = evt.PV_x-evt.SV_x
+        uy = evt.PV_y-evt.SV_y
+        uz = evt.PV_z-evt.SV_z
+        u = m.sqrt(ux**2+uy**2+uz**2)
+        ux= ux/u
+        uy = uy/u
+        uz = uz/u
+        sinthetapiplus = abs(m.sqrt(1-((evt.piplus_px*ux+evt.piplus_py*uy+evt.piplus_pz*uz)/evt.piplus_p)**2))
+        sinthetapiminus = abs(m.sqrt(1-((evt.piminus_px*ux+evt.piminus_py*uy+evt.piminus_pz*uz)/evt.piminus_p)**2))
+        sinthetaeminus = abs(m.sqrt(1-((evt.eminus_px*ux+evt.eminus_py*uy+evt.eminus_pz*uz)/evt.eminus_p)**2))
+        sinthetaeplus = abs(m.sqrt(1-((evt.eplus_px*ux+evt.eplus_py*uy+evt.eplus_pz*uz)/evt.eplus_p)**2))
+        ptpiplus = evt.piplus_p*sinthetapiplus
+        ptpiminus = evt.piminus_p*sinthetapiminus
+        
+        if evt.eplus_trck_type == 1:
+            pteminus = evt.eminus_p*sinthetaeminus
+            pteplus = -pteminus-ptpiminus-ptpiplus
+            pe=abs(pteplus/sinthetaeplus)
+            eplus_px = pe*evt.eplus_px/evt.eplus_p
+            eplus_py = pe*evt.eplus_py/evt.eplus_p
+            eplus_pz = pe*evt.eplus_pz/evt.eplus_p
+
+            eminus_px = evt.eminus_px
+            eminus_py = evt.eminus_py
+            eminus_pz = evt.eminus_pz
+        
+        if evt.eminus_trck_type == 1:
+            pteplus = evt.eplus_p*sinthetaeplus
+            pteminus = -pteplus-ptpiminus-ptpiplus
+            pe=abs(pteminus/sinthetaeminus)
+            eminus_px = pe*evt.eminus_px/evt.eminus_p
+            eminus_py = pe*evt.eminus_py/evt.eminus_p
+            eminus_pz = pe*evt.eminus_pz/evt.eminus_p
+
+            eplus_px = evt.eplus_px
+            eplus_py = evt.eplus_py
+            eplus_pz = evt.eplus_pz
+        else:
+            eminus_px = evt.eminus_px
+            eminus_py = evt.eminus_py
+            eminus_pz = evt.eminus_pz
+
+            eplus_px = evt.eplus_px
+            eplus_py = evt.eplus_py
+            eplus_pz = evt.eplus_pz
+        
+            
+
+        px = eminus_px+eplus_px+evt.piplus_px+evt.piminus_px
+        py = eminus_py+eplus_py+evt.piplus_py+evt.piminus_py
+        pz = eminus_pz+eplus_pz+evt.piplus_pz+evt.piminus_pz
+        eminus_p = m.sqrt(eminus_px**2+eminus_py**2+eminus_pz**2)
+        eplus_p = m.sqrt(eplus_px**2+eplus_py**2+eplus_pz**2)
+        p = m.sqrt(px**2+py**2+pz**2)
+        E = m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+        mass.append(m.sqrt(E**2-p**2))
 import matplotlib.pyplot as plt
-hist = plt.hist(m,bins=30)
-#plt.show()
-keys= []
-contador = 0
-for key in mctruth['evt_id'].values:
-    
-    if len(mctruth[mctruth.evt_id==key])!=4:
-        contador+=1
-        #print len(mctruth[mctruth.evt_id==key])
-        keys.append(key)
-keys = np.unique(keys)
-
+hist = plt.hist(mass,bins=50)
+plt.show()
