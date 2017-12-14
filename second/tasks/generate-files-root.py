@@ -18,7 +18,7 @@ DaVinci().Simulation = True
 ## These are for data tags (magnet up or down?)
 DaVinci().DDDBtag  = "dddb-20130929-1"
 DaVinci().CondDBtag = "sim-20130522-1-vc-mu100"
-#sys.argv = [0,1,1000]
+#sys.argv = [0,1,1000,'up']
 ## INPUT DSTS, POTENTIALLY ADD MORE
 magnet= str(sys.argv[3])
 dst_file = []
@@ -44,6 +44,7 @@ if magnet=='down':
 DaVinci().Input = dst_file
 
 f1 = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_'+magnet+'_'+str(sys.argv[1])+'-'+str(sys.argv[2])+'.root','recreate')
+#f1 = TFile('eraseme.root','recreate')
 #t1 = TTree('pi-e_truth','pi-e_truth')
 t3 = TTree('kS0_truth','kS0_truth')
 t4 = TTree('pi-e_reco','pi-e_reco')
@@ -527,6 +528,12 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 			    ks0par = get_mcpar(ks0proto)
 			    mother = ks0par.mother()
 			    ks0track = ks0proto.track()
+			    # if ks0par.originVertex().position().x() != mother.endVertices()[-1].position().x():
+			    # 	    print 'ola'
+			    # if ks0par.originVertex().position().y() != mother.endVertices()[-1].position().y():
+			    # 	    print 'ola'
+			    # if ks0par.originVertex().position().z() != mother.endVertices()[-1].position().z():
+			    # 	    print 'ola'
 			    ks0_recod_evt_id[0]=TES['Rec/Header'].evtNumber()
 			    ks0_recod_run_id[0]=TES['Rec/Header'].runNumber()
 
