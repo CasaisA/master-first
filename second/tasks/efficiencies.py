@@ -1,4 +1,4 @@
-gROOT.ProcessLine(".x /cvmfs/lhcb.cern.ch/lib/lhcb/URANIA/URANIA_v1r1/RootTools/LHCbStyle/src/lhcbStyle.C")
+
 import numpy as np
 import math as m
 # import pandas as pd
@@ -8,7 +8,8 @@ import math as m
 import matplotlib.pyplot as plt
 # from scipy.stats import mode
 # from root_pandas import read_root
-from ROOT import * 
+from ROOT import *
+gROOT.ProcessLine(".x /cvmfs/lhcb.cern.ch/lib/lhcb/URANIA/URANIA_v1r1/RootTools/LHCbStyle/src/lhcbStyle.C")
 # with open('/scratch13/acasais/second/task1/reco-500runs.p') as f:
 #     reco = pickle.load(f)
 
@@ -27,9 +28,9 @@ fup = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_up_1-1000000.root'
 fdown = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_down_1-1000000.root')
 f = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee.root')
 
-tks0t = fup.Get('kS0_truth')
-tks0r_alltracks = fup.Get('ks0products_reco')
-treco = fup.Get('pi-e_reco')
+tks0t = f.Get('kS0_truth')
+tks0r_alltracks = f.Get('ks0products_reco')
+treco = f.Get('pi-e_reco')
 ferase = TFile('eraseme.root','recreate')
 tks0r = tks0r_alltracks.CopyTree('(eminus_trck_type==1||eminus_trck_type==3)&&(eplus_trck_type==1||eplus_trck_type==3)&&(piminus_trck_type==1||piminus_trck_type==3)&&(piplus_trck_type==1||piplus_trck_type==3)')
 
