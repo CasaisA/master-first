@@ -24,8 +24,8 @@ def pack(string):
 
 
 
-fup = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_up_1-1000000.root')
-fdown = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_down_1-1000000.root')
+#fup = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_up_1-1000000.root')
+#fdown = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_down_1-1000000.root')
 f = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee.root')
 
 tks0t = f.Get('kS0_truth')
@@ -94,29 +94,40 @@ for pT in pTs:
     
 min = 0.
 for pT in pTs:
-    print 'Eficiencia ks0 (pT entre %.f e %.f Mev): %.4f +- %.4f'%(min,pT,effs['ks0','long2',pT],err_eff['ks0','long2',pT])
+    print 'Eficiencia ks0 (pT entre %.f e %.f Mev): %.4f +- %.4f'%(min,pT,effs['ks0','long3',pT],err_eff['ks0','long3',pT])
     min = pT
 
 #reconstruo algunha masa
 #por agora so collo os eventos nos que haxa
 #catro trazas long
-# tlongs = tks0r.CopyTree(long4)
-mass = []
-# for evt in tlongs:
-#     px = evt.eminus_px+evt.eplus_px+evt.piplus_px+evt.piminus_px
-#     py = evt.eminus_py+evt.eplus_py+evt.piplus_py+evt.piminus_py
-#     pz = evt.eminus_pz+evt.eplus_pz+evt.piplus_pz+evt.piminus_pz
-#     p = m.sqrt(px**2+py**2+pz**2)
-#     E = m.sqrt(evt.eminus_p**2+0.511**2)+m.sqrt(evt.eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
-#     mass.append(m.sqrt(E**2-p**2))
+
+tlongs = tks0r.CopyTree(long4)
+mass_4 = []
+for evt in tlongs:
+    px = evt.eminus_px+evt.eplus_px+evt.piplus_px+evt.piminus_px
+    py = evt.eminus_py+evt.eplus_py+evt.piplus_py+evt.piminus_py
+    pz = evt.eminus_pz+evt.eplus_pz+evt.piplus_pz+evt.piminus_pz
+    p = m.sqrt(px**2+py**2+pz**2)
+    E = m.sqrt(evt.eminus_p**2+0.511**2)+m.sqrt(evt.eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+    mass_4.append(m.sqrt(E**2-p**2))
+
+
+
     
 
 f1 = TFile('eraseme.root','recreate')
 tlong3=tks0r.CopyTree(long3)
+e_recons = {}
+e_truth = {}
+massalt=[]
+mass_3=[]
+mass_3muon=[]
 for evt in tlong3:
-        ux = evt.PV_x-evt.SV_x
-        uy = evt.PV_y-evt.SV_y
-        uz = evt.PV_z-evt.SV_z
+    
+        ux = evt.SV_x-evt.PV_x
+        uy = evt.SV_y-evt.PV_y
+        uz = evt.SV_z-evt.PV_z
+
         u = m.sqrt(ux**2+uy**2+uz**2)
         ux= ux/u
         uy = uy/u
@@ -141,11 +152,32 @@ for evt in tlong3:
             eplus_py = pe*evt.eplus_py/evt.eplus_p
             eplus_pz = pe*evt.eplus_pz/evt.eplus_p
 
+           
+
+            
+
+            v0 = TVector3(eplus_px,eplus_py,eplus_pz)
+            v1 = TVector3(evt.eplus_px_truth,evt.eplus_py_truth,evt.eplus_pz_truth)
+
             eminus_px = evt.eminus_px
             eminus_py = evt.eminus_py
             eminus_pz = evt.eminus_pz
+
+            px = eminus_px+eplus_px+evt.piplus_px+evt.piminus_px
+            py = eminus_py+eplus_py+evt.piplus_py+evt.piminus_py
+            pz = eminus_pz+eplus_pz+evt.piplus_pz+evt.piminus_pz
+            eminus_p = m.sqrt(eminus_px**2+eminus_py**2+eminus_pz**2)
+            eplus_p = m.sqrt(eplus_px**2+eplus_py**2+eplus_pz**2)
         
-        if evt.eminus_trck_type == 1:
+            E = m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+            Emuon= m.sqrt(eminus_p**2+105.568**2)+m.sqrt(eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+            v2 = TLorentzVector(px,py,pz,E)
+            v2muon = TLorentzVector(px,py,pz,Emuon)
+            mass_3.append(v2.M())
+            mass_3muon.append(v2muon.M())
+            
+        
+        elif evt.eminus_trck_type == 1:
             uprim_x+=evt.eplus_px
             uprim_y+=evt.eplus_py
             uprim_z+=evt.eplus_pz
@@ -162,40 +194,99 @@ for evt in tlong3:
             eminus_py = pe*evt.eminus_py/evt.eminus_p
             eminus_pz = pe*evt.eminus_pz/evt.eminus_p
 
-            eplus_px = evt.eplus_px
-            eplus_py = evt.eplus_py
-            eplus_pz = evt.eplus_pz
-        else:
-            eminus_px = evt.eminus_px
-            eminus_py = evt.eminus_py
-            eminus_pz = evt.eminus_pz
+            
+            
+            
 
+            v0 = TVector3(eminus_px,eminus_py,eminus_pz)
+            v1 = TVector3(evt.eminus_px_truth,evt.eminus_py_truth,evt.eminus_pz_truth)
+            
             eplus_px = evt.eplus_px
             eplus_py = evt.eplus_py
             eplus_pz = evt.eplus_pz
         
+        
             
+        
+            px = eminus_px+eplus_px+evt.piplus_px+evt.piminus_px
+            py = eminus_py+eplus_py+evt.piplus_py+evt.piminus_py
+            pz = eminus_pz+eplus_pz+evt.piplus_pz+evt.piminus_pz
+            eminus_p = m.sqrt(eminus_px**2+eminus_py**2+eminus_pz**2)
+            eplus_p = m.sqrt(eplus_px**2+eplus_py**2+eplus_pz**2)
+        
+            E = m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+            Emuon= m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+105.658**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+            v2 = TLorentzVector(px,py,pz,E)
+            v2muon = TLorentzVector(px,py,pz,Emuon)
+            mass_3.append(v2.M())
+            mass_3muon.append(v2muon.M())
+        else:
+            
+            eplus_px = evt.eplus_px
+            eplus_py = evt.eplus_py
+            eplus_pz = evt.eplus_pz
 
-        px = eminus_px+eplus_px+evt.piplus_px+evt.piminus_px
-        py = eminus_py+eplus_py+evt.piplus_py+evt.piminus_py
-        pz = eminus_pz+eplus_pz+evt.piplus_pz+evt.piminus_pz
-        eminus_p = m.sqrt(eminus_px**2+eminus_py**2+eminus_pz**2)
-        eplus_p = m.sqrt(eplus_px**2+eplus_py**2+eplus_pz**2)
-        p = m.sqrt(px**2+py**2+pz**2)
-        E = m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
-        mass.append(m.sqrt(E**2-p**2))
-# import matplotlib.pyplot as plt
-# hist = plt.hist(mass,bins=50)
-# plt.show()
+            eminus_px = evt.eminus_px
+            eminus_py = evt.eminus_py
+            eminus_pz = evt.eminus_pz
+
+            px = eminus_px+eplus_px+evt.piplus_px+evt.piminus_px
+            py = eminus_py+eplus_py+evt.piplus_py+evt.piminus_py
+            pz = eminus_pz+eplus_pz+evt.piplus_pz+evt.piminus_pz
+            eminus_p = m.sqrt(eminus_px**2+eminus_py**2+eminus_pz**2)
+            eplus_p = m.sqrt(eplus_px**2+eplus_py**2+eplus_pz**2)
+        
+            E = m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+0.511**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+            Emuon= m.sqrt(eminus_p**2+0.511**2)+m.sqrt(eplus_p**2+105.658**2)+m.sqrt(evt.piminus_p**2+139.57018**2)+m.sqrt(evt.piplus_p**2+139.57018**2)
+            v2 = TLorentzVector(px,py,pz,E)
+            v2muon = TLorentzVector(px,py,pz,Emuon)
+            mass_3.append(v2.M())
+            mass_3muon.append(v2muon.M())
+
+            
+leg=TLegend(.6,.6,.8,.8)
+
+h0 = TH1F('masa ks01','masa ks01',50,300,1000.0)
+leg.AddEntry(h0,'3 longs')
+for mas in mass_3:
+    h0.Fill(mas)
+c0 = TCanvas()
+h0.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
+h0.SetYTitle('No.Entries / 20 MeV/c^{2}')
+h0.DrawNormalized()
+
+h0_muon = TH1F('masa ks01_muon','masa ks01_muon',50,300,1000.0)
+leg.AddEntry(h0_muon,'3 longs_muon')
+for mas in mass_3muon:
+    h0_muon.Fill(mas)
+h0_muon.SetLineColor(kRed)
+
+leg.Draw()
+h0_muon.DrawNormalized('same')
+
+# h = TH1F('masa ks0','masa ks0',50,300,1000.0)
+# leg.AddEntry(h,'4 longs')
+# for mas in mass_4:
+#     h.Fill(mas)
+
+# #h.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
+# #h.SetYTitle('No.Entries / 20 MeV/c^{2}')
+# h.SetLineColor(kRed)
+# h.DrawNormalized('same')
+# leg.Draw()
 
 
-h = TH1F('masa ks0','masa ks0',50,400.,1400.0)
 
-for mas in mass:
-    h.Fill(mas)
 
-h.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
-h.SetYTitle('No.Entries / 20 MeV/c^{2}')
-h.Draw()
-mean = h.GetMean()
-std_dev = h.GetStdDev()
+
+
+
+
+
+
+
+    
+    
+
+        
+    
