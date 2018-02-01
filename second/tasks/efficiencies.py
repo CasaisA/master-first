@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 # from scipy.stats import mode
 # from root_pandas import read_root
 from ROOT import *
+from easygraphs import *
 gROOT.ProcessLine(".x /cvmfs/lhcb.cern.ch/lib/lhcb/URANIA/URANIA_v1r1/RootTools/LHCbStyle/src/lhcbStyle.C")
 # with open('/scratch13/acasais/second/task1/reco-500runs.p') as f:
 #     reco = pickle.load(f)
@@ -26,7 +27,9 @@ def pack(string):
 
 #fup = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_up_1-1000000.root')
 #fdown = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee_down_1-1000000.root')
-f = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee.root')
+f = TFile('/scratch13/acasais/second/KsPiPiee-root/updown_all.root')
+#f = TFile('/scratch13/acasais/second/KsPiPiee-root/KsPiPiee.root')
+
 
 tks0t = f.Get('kS0_truth')
 tks0r_alltracks = f.Get('ks0products_reco')
@@ -38,8 +41,8 @@ tks0r = tks0r_alltracks.CopyTree('(eminus_trck_type==1||eminus_trck_type==3)&&(e
 #calculo de eficiencias
 effs= {}
 err_eff = {}
-max =2000
-step = 300
+max =500
+step = 10
 min = 0
 no_bins = 10
 pTs = range(step,max+step,step)
@@ -96,14 +99,30 @@ min = 0.
 for pT in pTs:
     print 'Eficiencia ks0 (pT entre %.f e %.f Mev): %.4f +- %.4f'%(min,pT,effs['ks0','long3',pT],err_eff['ks0','long3',pT])
     min = pT
+#parte auxiliar para facer uns graficos 
+parts = ['e','pi']
+tracks=['velo']
+g = []
+c = []
+for particle in parts:
+    for track in tracks:
+        values = map(lambda x: effs[particle,track,x],pTs)
+        errors_y = map(lambda x: err_eff[particle,track,x],pTs)
+        errors_x = list(np.zeros(len(values)))
+        g = graph(pTs,values,errors_x,errors_y)
+        g.GetYaxis().SetTitle('#epsilon('+particle+'_{'+track+'})')
+        g.GetXaxis().SetTitle('pT [MeV]')
+        
+        g.Draw('same AP')
 
+g = graph()
 #reconstruo algunha masa
 #por agora so collo os eventos nos que haxa
 #catro trazas long
 
-tlongs = tks0r.CopyTree(long4)
+tlong4 = tks0r.CopyTree(long4)
 mass_4 = []
-for evt in tlongs:
+for evt in tlong4:
     px = evt.eminus_px+evt.eplus_px+evt.piplus_px+evt.piminus_px
     py = evt.eminus_py+evt.eplus_py+evt.piplus_py+evt.piminus_py
     pz = evt.eminus_pz+evt.eplus_pz+evt.piplus_pz+evt.piminus_pz
@@ -220,6 +239,7 @@ for evt in tlong3:
             v2muon = TLorentzVector(px,py,pz,Emuon)
             mass_3.append(v2.M())
             mass_3muon.append(v2muon.M())
+
         else:
             
             eplus_px = evt.eplus_px
@@ -243,11 +263,67 @@ for evt in tlong3:
             mass_3.append(v2.M())
             mass_3muon.append(v2muon.M())
 
-            
-leg=TLegend(.6,.6,.8,.8)
+#agora 
+fera=TFile('eraseme.root','recreate')
+tlong2 = tks0r.CopyTree(long2+'&& !'+pack(long3)+'&& !'+pack(long4))
+mlong2 = []
+for evt in tlong2:
+        
+        ux = evt.SV_x-evt.PV_x
+        uy = evt.SV_y-evt.PV_y
+        uz = evt.SV_z-evt.PV_z
 
+        u = TVector3(ux,uy,uz)
+        u.SetMag(1.)
+        #uprim e uprima, o vector resultante dos outros tres, que ten q ser coplanario co momento do electron/positron
+        uprim_x = evt.piplus_px+evt.piminus_px
+        uprim_y = evt.piplus_py+evt.piminus_py
+        uprim_z = evt.piplus_pz+evt.piminus_pz
+        
+           
+        uprim = TVector3(uprim_x,uprim_y,uprim_z)
+        peplus = TVector3(evt.eplus_px,evt.eplus_py,evt.eplus_pz)
+        peplus.SetMag(1.)
+        peminus = TVector3(evt.eminus_px,evt.eminus_py,evt.eminus_pz)
+        peminus.SetMag(1.)
+        pe = peplus + peminus
+        #o angulo da resultante dos dous pions/electrons con respecto a incidente de ks0
+        sinthetauprim=m.sin(u.Angle(uprim))
+        sinthetae = m.sin(u.Angle(pe))
+        pe.SetMag(uprim.Mag()*sinthetauprim/sinthetae)
+        costhetaeplus = m.cos(peplus.Angle(pe))
+        costhetaeminus = m.cos(peminus.Angle(pe))
+        peplus.SetMag(pe.Mag()/(costhetaeplus+costhetaeminus))
+        peminus.SetMag(peplus.Mag())
+        p4piplus =TLorentzVector()
+        p4piplus.SetXYZM(evt.piplus_px,evt.piplus_py,evt.piplus_pz,139.57)
+        p4piminus =TLorentzVector()
+        p4piminus.SetXYZM(evt.piminus_px,evt.piminus_py,evt.piminus_pz,139.57)
+        p4eminus = TLorentzVector()
+        p4eminus.SetVectM(peminus,0.511)
+        p4eplus = TLorentzVector()
+        p4eplus.SetVectM(peplus,0.511)
+        p4ks0 = p4piplus+p4piminus+p4eminus+p4eplus
+        mlong2.append(p4ks0.M())
+        
+        
+
+         
+
+
+
+
+
+
+
+
+
+
+
+leg=TLegend(.6,.6,.8,.8)
+#h0=hlong3
 h0 = TH1F('masa ks01','masa ks01',50,300,1000.0)
-leg.AddEntry(h0,'3 longs')
+leg.AddEntry(h0,'3 longs','L')
 for mas in mass_3:
     h0.Fill(mas)
 c0 = TCanvas()
@@ -255,29 +331,91 @@ h0.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
 h0.SetYTitle('No.Entries / 20 MeV/c^{2}')
 h0.DrawNormalized()
 
-h0_muon = TH1F('masa ks01_muon','masa ks01_muon',50,300,1000.0)
-leg.AddEntry(h0_muon,'3 longs_muon')
-for mas in mass_3muon:
-    h0_muon.Fill(mas)
-h0_muon.SetLineColor(kRed)
 
+
+
+
+#h = hlong4
+h = TH1F('masa ks0','masa ks0',50,300,1000.0)
+leg.AddEntry(h,'4 longs','L')
+for mas in mass_4:
+    h.Fill(mas)
+
+#h.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
+#h.SetYTitle('No.Entries / 20 MeV/c^{2}')
+h.SetLineColor(kRed)
+h.DrawNormalized('same')
 leg.Draw()
-h0_muon.DrawNormalized('same')
-
-# h = TH1F('masa ks0','masa ks0',50,300,1000.0)
-# leg.AddEntry(h,'4 longs')
-# for mas in mass_4:
-#     h.Fill(mas)
-
-# #h.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
-# #h.SetYTitle('No.Entries / 20 MeV/c^{2}')
-# h.SetLineColor(kRed)
-# h.DrawNormalized('same')
-# leg.Draw()
 
 
+hlong2 = TH1F('masa ks0long2','masa ks0long2',50,300,1000.0)
+leg.AddEntry(hlong2,'2 longs','L')
+for mas in mlong2:
+    hlong2.Fill(mas)
+#clong2 = TCanvas()
+hlong2.SetXTitle('M(K_{S}^{0})[MeV/c^{2}]')
+hlong2.SetYTitle('No.Entries / 20 MeV/c^{2}')
+hlong2.SetLineColor(kBlue)
+hlong2.DrawNormalized('same')  
 
+##Resolucion en momento para os pions/electrons
 
+##uso a formula do ano pasado deltaP/ptruth
+#esto que pego aqui e o script do ano pasado
+x = []
+y = []
+c = TCanvas()
+i = 0
+j = 0
+while i < 100 and j<100:
+#	print 'i= ' + str(i)
+#	print 'j= ' + str(j)
+	j = j +1
+	cond = 'abs(eminus_p)>'+str(i)+'e2 && abs(eminus_p)<('+str(i)+'e2+'+str(j)+'e2)&& eminus_trck_type==3'
+	if tks0r.GetEntries(cond)>1:
+		h1=TH1F('h','',100,0,7e4)
+		tks0r.Project('h','abs((eminus_p-eminus_p_truth)/eminus_p_truth)',cond)
+		x.append((i+j)*100/2.)
+        	y.append(h1.GetStdDev())
+		i = j
+		h1 = 0
+	
+ 
+	else:
+		j = j+1
+	
+g = graph(x,y)
+g.GetYaxis().SetTitle('#sigma(#Delta p/p_{truth})')
+g.GetXaxis().SetTitle('p (MeV/c)')
+g.Draw('AP')
+    
+
+x = []
+y = []
+
+i = 0
+j = 0
+while i < 100 and j<100:
+#	print 'i= ' + str(i)
+#	print 'j= ' + str(j)
+	j = j +1
+	cond = 'abs(piminus_p)>'+str(i)+'e2 && abs(piminus_p)<('+str(i)+'e2+'+str(j)+'e2)&& piminus_trck_type==3'
+	if tks0r.GetEntries(cond)>1:
+		h1=TH1F('h','',100,0,7e4)
+		tks0r.Project('h','abs((piminus_p-piminus_p_truth)/piminus_p_truth)',cond)
+		x.append((i+j)*100/2.)
+        	y.append(h1.GetStdDev())
+		i = j
+		h1 = 0
+	
+ 
+	else:
+		j = j+1
+	
+g1 = graph(x,y)
+g1.GetYaxis().SetTitle('#sigma(#Delta p/p_{truth})')
+g1.GetXaxis().SetTitle('p (MeV/c)')
+g1.Draw('same AP')
 
 
 
