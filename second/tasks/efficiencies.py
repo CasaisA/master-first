@@ -115,7 +115,7 @@ for particle in parts:
         
         g.Draw('same AP')
 
-g = graph()
+
 #reconstruo algunha masa
 #por agora so collo os eventos nos que haxa
 #catro trazas long
@@ -416,8 +416,10 @@ g1 = graph(x,y)
 g1.GetYaxis().SetTitle('#sigma(#Delta p/p_{truth})')
 g1.GetXaxis().SetTitle('p (MeV/c)')
 g1.Draw('same AP')
-
-
+leg=TLegend(.6,.6,.8,.8)
+leg.AddEntry(g,'Electrons','P')
+leg.AddEntry(g1,'Pions','P')
+leg.Draw()
 
 
 
