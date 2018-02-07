@@ -35,21 +35,26 @@ tks0t = f.Get('kS0_truth')
 tks0r_alltracks = f.Get('ks0products_reco')
 treco = f.Get('pi-e_reco')
 ferase = TFile('eraseme.root','recreate')
-tks0r = tks0r_alltracks.CopyTree('(eminus_trck_type==1||eminus_trck_type==3)&&(eplus_trck_type==1||eplus_trck_type==3)&&(piminus_trck_type==1||piminus_trck_type==3)&&(piplus_trck_type==1||piplus_trck_type==3)')
+tks0r = tks0r_alltracks.CopyTree('(eminus_trck_type==1||eminus_trck_type==3||eminus_trck_type==4)&&(eplus_trck_type==1||eplus_trck_type==3||eplus_trck_type==4)&&(piminus_trck_type==1||piminus_trck_type==3)&&(piplus_trck_type==1||piplus_trck_type==3)')
 
 
 #calculo de eficiencias
 effs= {}
 err_eff = {}
 max =500
-step = 10
+step = 50
 min = 0
 no_bins = 10
 pTs = range(step,max+step,step)
-
-long2 = 'piplus_trck_type==3 && piminus_trck_type==3'
-long3 = long2+' && '+pack('eplus_trck_type==3 || eminus_trck_type==3')
-long4 = long2+' && '+pack('eplus_trck_type==3 && eminus_trck_type==3')
+#categorias os nomes non son tan comprensibles como deberia
+#debido a que houbo que engadir categorias e, para non cambiar todos os nomes
+long2solo = 'piplus_trck_type==3 && piminus_trck_type==3'
+long2 = 'piplus_trck_type==3 && piminus_trck_type==3 && eplus_trck_type==1 && eminus_trck_type==1'##deberia chamarse long2vv (velo velo)
+long3 = long2solo+' && '+pack('(eplus_trck_type==3&&eminus_trck_type==1) || (eminus_trck_type==3&&eplus_trck_type==1)')
+long4 = long2solo+' && '+pack('eplus_trck_type==3 && eminus_trck_type==3')
+long2uu = long2solo+' && '+pack('eplus_trck_type==4 && eminus_trck_type==4')
+long2uv = long2solo+' && '+pack('(eplus_trck_type==4 &&  eminus_trck_type==1)||(eplus_trck_type==1 &&  eminus_trck_type==4)')
+long2lu = long2solo+' && '+pack('(eplus_trck_type==4 &&  eminus_trck_type==3)||(eplus_trck_type==3 &&  eminus_trck_type==4)')
     
 for pT in pTs:
     max = pT
@@ -77,13 +82,27 @@ for pT in pTs:
     
     effs['ks0','long2',pT]=tks0r.GetEntries(pack(long2)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
                             np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    effs['ks0','long2uu',pT]=tks0r.GetEntries(pack(long2uu)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
+                            np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    effs['ks0','long2uv',pT]=tks0r.GetEntries(pack(long2uv)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
+                            np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    effs['ks0','long2lu',pT]=tks0r.GetEntries(pack(long2lu)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
+                            np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    
     effs['ks0','long3',pT]=tks0r.GetEntries(pack(long3)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
                             np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
     effs['ks0','long4',pT]=tks0r.GetEntries(pack(long4)+' && pT_truth < '+str(max)+' && pT_truth > '+str(min))/\
                             np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min)))
+    
 
     err_eff['ks0','long2',pT]= m.sqrt(effs['ks0','long2',pT]*(1-effs['ks0','long2',pT])/\
-                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))       
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
+    err_eff['ks0','long2uu',pT]= m.sqrt(effs['ks0','long2uu',pT]*(1-effs['ks0','long2uu',pT])/\
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
+    err_eff['ks0','long2uv',pT]= m.sqrt(effs['ks0','long2uv',pT]*(1-effs['ks0','long2uv',pT])/\
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
+    err_eff['ks0','long2lu',pT]= m.sqrt(effs['ks0','long2lu',pT]*(1-effs['ks0','long2lu',pT])/\
+                               np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
     err_eff['ks0','long3',pT]= m.sqrt(effs['ks0','long3',pT]*(1-effs['ks0','long3',pT])/\
                                np.float64(tks0t.GetEntries('pT < '+str(max)+' && pT > '+str(min))))
                                       
@@ -99,11 +118,11 @@ min = 0.
 for pT in pTs:
     print 'Eficiencia ks0 (pT entre %.f e %.f Mev): %.4f +- %.4f'%(min,pT,effs['ks0','long3',pT],err_eff['ks0','long3',pT])
     min = pT
-#parte auxiliar para facer uns graficos 
-parts = ['e','pi']
-tracks=['velo']
-g = []
-c = []
+#parte auxiliar para facer uns graficos
+c1 = TCanvas()
+parts = ['ks0']
+tracks=['long2uu']
+
 for particle in parts:
     for track in tracks:
         values = map(lambda x: effs[particle,track,x],pTs)
@@ -113,8 +132,32 @@ for particle in parts:
         g.GetYaxis().SetTitle('#epsilon('+particle+'_{'+track+'})')
         g.GetXaxis().SetTitle('pT [MeV]')
         
-        g.Draw('same AP')
+        g.Draw('AP')
 
+# c2 = TCanvas()
+parts = ['ks0']
+tracks=['long2lu']
+
+# c = []
+for particle in parts:
+    for track in tracks:
+        values = map(lambda x: effs[particle,track,x],pTs)
+        errors_y = map(lambda x: err_eff[particle,track,x],pTs)
+        errors_x = list(np.zeros(len(values)))
+        g5 = graph(pTs,values,errors_x,errors_y)
+        g5.GetYaxis().SetTitle('#epsilon('+particle+'_{'+track+'})')
+        g5.GetXaxis().SetTitle('pT [MeV]')
+        
+        g5.Draw('same P')
+
+leg=TLegend(.6,.6,.8,.8)
+leg.AddEntry(g,'UU','P')
+leg.AddEntry(g1,'LL','P')
+leg.AddEntry(g2,'UV','P')
+leg.AddEntry(g3,'VV','P')
+leg.AddEntry(g4,'LV','P')
+leg.AddEntry(g5,'LU','P')
+leg.Draw()
 
 #reconstruo algunha masa
 #por agora so collo os eventos nos que haxa
@@ -415,18 +458,50 @@ while i < 100 and j<100:
 g1 = graph(x,y)
 g1.GetYaxis().SetTitle('#sigma(#Delta p/p_{truth})')
 g1.GetXaxis().SetTitle('p (MeV/c)')
-g1.Draw('same AP')
+g1.Draw('same P')
 leg=TLegend(.6,.6,.8,.8)
 leg.AddEntry(g,'Electrons','P')
 leg.AddEntry(g1,'Pions','P')
 leg.Draw()
 
 
+## distribucions de pT/eficiencias mesmo grafico
+
+h1 = TH1F('h1','h1',100,0,700)
 
 
+tks0r.Project('h1','eminus_pT_truth','eminus_trck_type==3')
+tks0r.Project('h1','eplus_pT_truth','eplus_trck_type==3')
+h1.GetXaxis().SetTitle('p_{T}[MeV]')
+h1.GetYaxis().SetTitle('No.Entries/13.5 MeV')
+h1.Draw()
 
-    
-    
 
+parts = ['e']
+tracks=['long']
+g = []
+c = []
+for particle in parts:
+    for track in tracks:
+        values = map(lambda x: effs[particle,track,x],pTs)
+        errors_y = map(lambda x: err_eff[particle,track,x],pTs)
+        errors_x = list(np.zeros(len(values)))
+        g = graph(pTs,values,errors_x,errors_y)
+        g.GetYaxis().SetTitle('#epsilon('+particle+'_{'+track+'})')
+        g.GetXaxis().SetTitle('pT [MeV]')
+        g.GetXaxis().SetRangeUser(0,700)
         
+        g.Draw('AP')        
     
+c = TCanvas()
+pad1 = TPad("pad1","",0,0,1,1)
+pad2 = TPad("pad2","",0,0,1,1)
+pad2.SetFillStyle(4000)
+pad2.SetFrameFillStyle(0)
+pad1.Draw()
+pad1.cd()
+h1.GetXaxis().SetRangeUser(0,700)
+h1.Draw()
+pad2.Draw()
+pad2.cd()
+g.Draw('AP x+ y+')

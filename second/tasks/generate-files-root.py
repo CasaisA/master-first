@@ -13,7 +13,7 @@ import numpy as np
 import sys
 
 DaVinci().EvtMax = 0
-DaVinci().DataType = "2012"
+vDaVinci().DataType = "2012"
 DaVinci().Simulation = True
 ## These are for data tags (magnet up or down?)
 DaVinci().DDDBtag  = "dddb-20130929-1"
@@ -205,6 +205,15 @@ ks0_recod_eminus_eta=np.zeros(1,dtype=float)
 ks0_recod_eminus_phi=np.zeros(1,dtype=float)
 ks0_recod_eminus_trck_type=np.zeros(1,dtype=float)
 
+ks0_recod_eminus_px_truth=np.zeros(1,dtype=float)
+ks0_recod_eminus_py_truth=np.zeros(1,dtype=float)
+ks0_recod_eminus_pz_truth=np.zeros(1,dtype=float)
+ks0_recod_eminus_p_truth=np.zeros(1,dtype=float)
+ks0_recod_eminus_pT_truth=np.zeros(1,dtype=float)
+ks0_recod_eminus_eta_truth=np.zeros(1,dtype=float)
+ks0_recod_eminus_phi_truth=np.zeros(1,dtype=float)
+
+
 
 
 
@@ -217,6 +226,15 @@ ks0_recod_eplus_eta=np.zeros(1,dtype=float)
 ks0_recod_eplus_phi=np.zeros(1,dtype=float)
 ks0_recod_eplus_trck_type=np.zeros(1,dtype=float)
 
+ks0_recod_eplus_px_truth=np.zeros(1,dtype=float)
+ks0_recod_eplus_py_truth=np.zeros(1,dtype=float)
+ks0_recod_eplus_pz_truth=np.zeros(1,dtype=float)
+ks0_recod_eplus_p_truth=np.zeros(1,dtype=float)
+ks0_recod_eplus_pT_truth=np.zeros(1,dtype=float)
+ks0_recod_eplus_eta_truth=np.zeros(1,dtype=float)
+ks0_recod_eplus_phi_truth=np.zeros(1,dtype=float)
+
+
 ks0_recod_piminus_px=np.zeros(1,dtype=float)
 ks0_recod_piminus_py=np.zeros(1,dtype=float)
 ks0_recod_piminus_pz=np.zeros(1,dtype=float)
@@ -226,6 +244,15 @@ ks0_recod_piminus_eta=np.zeros(1,dtype=float)
 ks0_recod_piminus_phi=np.zeros(1,dtype=float)
 ks0_recod_piminus_trck_type=np.zeros(1,dtype=float)
 
+ks0_recod_piminus_px_truth=np.zeros(1,dtype=float)
+ks0_recod_piminus_py_truth=np.zeros(1,dtype=float)
+ks0_recod_piminus_pz_truth=np.zeros(1,dtype=float)
+ks0_recod_piminus_p_truth=np.zeros(1,dtype=float)
+ks0_recod_piminus_pT_truth=np.zeros(1,dtype=float)
+ks0_recod_piminus_eta_truth=np.zeros(1,dtype=float)
+ks0_recod_piminus_phi_truth=np.zeros(1,dtype=float)
+
+
 ks0_recod_piplus_px=np.zeros(1,dtype=float)
 ks0_recod_piplus_py=np.zeros(1,dtype=float)
 ks0_recod_piplus_pz=np.zeros(1,dtype=float)
@@ -234,6 +261,14 @@ ks0_recod_piplus_pT=np.zeros(1,dtype=float)
 ks0_recod_piplus_eta=np.zeros(1,dtype=float)
 ks0_recod_piplus_phi=np.zeros(1,dtype=float)
 ks0_recod_piplus_trck_type=np.zeros(1,dtype=float)
+
+ks0_recod_piplus_px_truth=np.zeros(1,dtype=float)
+ks0_recod_piplus_py_truth=np.zeros(1,dtype=float)
+ks0_recod_piplus_pz_truth=np.zeros(1,dtype=float)
+ks0_recod_piplus_p_truth=np.zeros(1,dtype=float)
+ks0_recod_piplus_pT_truth=np.zeros(1,dtype=float)
+ks0_recod_piplus_eta_truth=np.zeros(1,dtype=float)
+ks0_recod_piplus_phi_truth=np.zeros(1,dtype=float)
 
 
 t2.Branch('evt_id',ks0_recod_evt_id,'evt_id/D')
@@ -282,6 +317,30 @@ t2.Branch('piplus_pz',ks0_recod_piplus_pz,'piplus_pz/D')
 t2.Branch('piplus_pT',ks0_recod_piplus_pT,'piplus_pT/D')
 t2.Branch('piplus_p',ks0_recod_piplus_p,'piplus_p/D')
 t2.Branch('piplus_trck_type',ks0_recod_piplus_trck_type,'piplus_trck_type/D')
+
+t2.Branch('eminus_px_truth',ks0_recod_eminus_px_truth,'eminus_px_truth/D')
+t2.Branch('eminus_py_truth',ks0_recod_eminus_py_truth,'eminus_py_truth/D')
+t2.Branch('eminus_pz_truth',ks0_recod_eminus_pz_truth,'eminus_pz_truth/D')
+t2.Branch('eminus_pT_truth',ks0_recod_eminus_pT_truth,'eminus_pT_truth/D')
+t2.Branch('eminus_p_truth',ks0_recod_eminus_p_truth,'eminus_p_truth/D')
+
+t2.Branch('eplus_px_truth',ks0_recod_eplus_px_truth,'eplus_px_truth/D')
+t2.Branch('eplus_py_truth',ks0_recod_eplus_py_truth,'eplus_py_truth/D')
+t2.Branch('eplus_pz_truth',ks0_recod_eplus_pz_truth,'eplus_pz_truth/D')
+t2.Branch('eplus_pT_truth',ks0_recod_eplus_pT_truth,'eplus_pT_truth/D')
+t2.Branch('eplus_p_truth',ks0_recod_eplus_p_truth,'eplus_p_truth/D')
+
+t2.Branch('piminus_px_truth',ks0_recod_piminus_px_truth,'piminus_px_truth/D')
+t2.Branch('piminus_py_truth',ks0_recod_piminus_py_truth,'piminus_py_truth/D')
+t2.Branch('piminus_pz_truth',ks0_recod_piminus_pz_truth,'piminus_pz_truth/D')
+t2.Branch('piminus_pT_truth',ks0_recod_piminus_pT_truth,'piminus_pT_truth/D')
+t2.Branch('piminus_p_truth',ks0_recod_piminus_p_truth,'piminus_p_truth/D')
+
+t2.Branch('piplus_px_truth',ks0_recod_piplus_px_truth,'piplus_px_truth/D')
+t2.Branch('piplus_py_truth',ks0_recod_piplus_py_truth,'piplus_py_truth/D')
+t2.Branch('piplus_pz_truth',ks0_recod_piplus_pz_truth,'piplus_pz_truth/D')
+t2.Branch('piplus_pT_truth',ks0_recod_piplus_pT_truth,'piplus_pT_truth/D')
+t2.Branch('piplus_p_truth',ks0_recod_piplus_p_truth,'piplus_p_truth/D')
 #t4
 
 recod_px=np.zeros(1,dtype=float)
@@ -565,6 +624,14 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				    ks0_recod_eminus_phi[0]=ks0track.momentum().phi()
 				    ks0_recod_eminus_trck_type[0]=ks0track.type()
 
+				    ks0_recod_eminus_px_truth[0]=ks0par.momentum().x()
+				    ks0_recod_eminus_py_truth[0]=ks0par.momentum().y()
+				    ks0_recod_eminus_pz_truth[0]=ks0par.momentum().z()
+				    ks0_recod_eminus_p_truth[0]=ks0par.p()
+				    ks0_recod_eminus_pT_truth[0]=ks0par.pt()
+				    ks0_recod_eminus_eta_truth[0]=ks0par.momentum().eta()
+				    ks0_recod_eminus_phi_truth[0]=ks0par.momentum().phi()
+
 			    if ks0par.particleID().pid()==-11:
 				    
 				    ks0_recod_eplus_px[0]=ks0track.momentum().x()
@@ -575,6 +642,14 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				    ks0_recod_eplus_eta[0]=ks0track.momentum().eta()
 				    ks0_recod_eplus_phi[0]=ks0track.momentum().phi()
 				    ks0_recod_eplus_trck_type[0]=ks0track.type()
+
+				    ks0_recod_eplus_px_truth[0]=ks0par.momentum().x()
+				    ks0_recod_eplus_py_truth[0]=ks0par.momentum().y()
+				    ks0_recod_eplus_pz_truth[0]=ks0par.momentum().z()
+				    ks0_recod_eplus_p_truth[0]=ks0par.p()
+				    ks0_recod_eplus_pT_truth[0]=ks0par.pt()
+				    ks0_recod_eplus_eta_truth[0]=ks0par.momentum().eta()
+				    ks0_recod_eplus_phi_truth[0]=ks0par.momentum().phi()
 			    if ks0par.particleID().pid()==211:
 				    
 				    ks0_recod_piplus_px[0]=ks0track.momentum().x()
@@ -585,6 +660,14 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				    ks0_recod_piplus_eta[0]=ks0track.momentum().eta()
 				    ks0_recod_piplus_phi[0]=ks0track.momentum().phi()
 				    ks0_recod_piplus_trck_type[0]=ks0track.type()
+
+				    ks0_recod_piplus_px_truth[0]=ks0par.momentum().x()
+				    ks0_recod_piplus_py_truth[0]=ks0par.momentum().y()
+				    ks0_recod_piplus_pz_truth[0]=ks0par.momentum().z()
+				    ks0_recod_piplus_p_truth[0]=ks0par.p()
+				    ks0_recod_piplus_pT_truth[0]=ks0par.pt()
+				    ks0_recod_piplus_eta_truth[0]=ks0par.momentum().eta()
+				    ks0_recod_piplus_phi_truth[0]=ks0par.momentum().phi()
 
 
 			    if ks0par.particleID().pid()==-211:
@@ -597,6 +680,14 @@ for i in range(int(sys.argv[2])-int(sys.argv[1])+1):
 				    ks0_recod_piminus_eta[0]=ks0track.momentum().eta()
 				    ks0_recod_piminus_phi[0]=ks0track.momentum().phi()
 				    ks0_recod_piminus_trck_type[0]=ks0track.type()
+
+				    ks0_recod_piminus_px_truth[0]=ks0par.momentum().x()
+				    ks0_recod_piminus_py_truth[0]=ks0par.momentum().y()
+				    ks0_recod_piminus_pz_truth[0]=ks0par.momentum().z()
+				    ks0_recod_piminus_p_truth[0]=ks0par.p()
+				    ks0_recod_piminus_pT_truth[0]=ks0par.pt()
+				    ks0_recod_piminus_eta_truth[0]=ks0par.momentum().eta()
+				    ks0_recod_piminus_phi_truth[0]=ks0par.momentum().phi()
 	
 
 	            
