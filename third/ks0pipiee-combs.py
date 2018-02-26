@@ -15,18 +15,13 @@ from Bender.MainMC import *
 ## make VELO particles by hand
 # first make protoparticles (needed for VELO Tracks)
 
-# myprotos = ChargedProtoParticleMaker("MyProtoParticles",
-#                                      Inputs = ["Rec/Track/Best"],
-#                                      Output = "Rec/ProtoP/MyProtoParticles")
-# DaVinci().UserAlgorithms +=[myprotos]
-
 ## MCTRUTH MATCHING
 myprotos = ChargedProtoParticleMaker("MyProtoParticles",
                                      Inputs = ["Rec/Track/Best"],
                                      Output = "Rec/ProtoP/MyProtoParticles")
 
 protop_locations = [myprotos.Output]
-charged = ChargedPP2MC('myprotos')
+charged = ChargedPP2MC("myprotos")
 charged.InputData = protop_locations
 myseq = GaudiSequencer("myseq")
 myseq.Members +=[myprotos,charged]
@@ -65,6 +60,7 @@ combs = {"LL":"( ANUM( ( TRTYPE == 3 ) &  ( ABSID == 'e-' ) ) == 2 )",
 
 ## build combinations
 Ks2pipiee = {}
+
 for name in combs:
     Ks2pipiee[name] = CombineParticles("TrackSel"+name+"_Ks2pipiee")
     Ks2pipiee[name].DecayDescriptor = "KS0 -> pi+ pi- e+ e-"
@@ -91,7 +87,7 @@ def is_el_from_ks(proto):
     if abs(mcpar.particleID().pid()) != 11: return False
     mum = mcpar.mother()
     if mum.particleID().pid()!=310: return False
-    pids = map(lambda x: abs(x.particleID().pid()),mum.endVertices()[0].products())
+    pids = map(lambda x: abs(x.particleID().pid()),mum.endVertices()[-1].products())
     if pids.count(11)!=2: return False
     if pids.count(211)!=2: return False
     return mcpar.key()
@@ -102,29 +98,31 @@ DaVinci().DataType = "2012"
 DaVinci().Simulation = True
 DaVinci().DDDBtag  = "dddb-20130929-1"
 DaVinci().CondDBtag = "sim-20130522-1-vc-mu100"
-DaVinci().Input = ["/scratch29/KsPiPiee/up/00037694_00000001_1.allstreams.dst"]
+DaVinci().Input = ["/scratch29/KsPiPiee/up/00037694_00000031_1.allstreams.dst"]
 DaVinci.TupleFile = "proba.root"
 gaudi = GaudiPython.AppMgr()
 
-# DEBUG = 0
-# TES = gaudi.evtsvc()
-# cbreak = 0
-# for i in range(1000):
-#     if cbreak: break
-#     bla = gaudi.run(1)
-#     for name in combs:
-#         if cbreak: break
-#         ks0s = TES["Phys/TrackSel"+name+"_Ks2pipiee/Particles"]
-#         for ks0 in ks0s:
-#             daughters = map(lambda x: is_el_from_ks(x.proto()),ks0.daughters())
-#             #print AMAXDOCA(ks0)
-#             daughters = filter(lambda y: type(y)==int,daughters)
-#             if len(daughters)!=2: continue
-#             if daughters[0]==daughters[1]: continue
-#             print daughters
-#             cbreak = 1
-#             break
-#         if cbreak: break
+combs = ['VV']
+TES = gaudi.evtsvc()
+cbreak = 0
+for i in range(10000):
+    if cbreak: break
+    bla = gaudi.run(1)
+    for name in combs:
+        if cbreak: break
+        ks0s = TES["Phys/TrackSel"+name+"_Ks2pipiee/Particles"]
+        for ks0 in ks0s:
+            daughters = map(lambda x: is_el_from_ks(x.proto()),ks0.daughters())
+            #print AMAXDOCA(ks0)
+            daughters = filter(lambda y: type(y)==int,daughters)
+            if len(daughters)!=2: continue
+            if daughters[0]==daughters[1]:
+                continue
+            else:
+                print daughters
+                cbreak = 1
+                ks = ks0
+                break
 #class to produce the nTuple    
 class MyAlg(Algo):
     def analyse(self):
@@ -172,23 +170,23 @@ class MyAlg(Algo):
 
 
 
-combinations = ["VV"]
-for name in combinations:
-    gaudi.addAlgorithm(MyAlg(name))
+
+# for name in combs:
+#     gaudi.addAlgorithm(MyAlg(name))
 
 
 
 
-gaudi.initialize()
-TES = gaudi.evtsvc()
-gaudi.run(2000)
-gaudi.stop()
-gaudi.finalize()
+# gaudi.initialize()
+# TES = gaudi.evtsvc()
+# gaudi.run(2000)
+# gaudi.stop()
+# gaudi.finalize()
 
 
 
 
 # from ROOT import *
 # f = TFile('proba.root')
-# t = f.Get('UV/UV')
+# t = f.Get('VV/VV')
 # t.Show(1)
