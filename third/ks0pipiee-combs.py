@@ -91,10 +91,12 @@ for name in combs:
 
 
 def is_el_from_ks(proto):
+    if not proto: return False
     mcpar = get_mcpar(proto)
     if not mcpar: return False
     if abs(mcpar.particleID().pid()) != 11: return False
     mum = mcpar.mother()
+    if not mum: return False
     if mum.particleID().pid()!=310: return False
     pids = map(lambda x: abs(x.particleID().pid()),mum.endVertices()[-1].products())
     if pids.count(11)!=2: return False
@@ -104,6 +106,15 @@ def is_el_from_ks(proto):
 podes mirar unha cousa mais, q me entrou a dúbida? Para upstream tracksdelta charge entre mctruth e traza(e dicir, se a carga (.charge()) das trazas upstream é a correcta) Xabier, 1:13 PM e despois, cando teñas as partículas matcheadas entre electróns e upstream particles, comparar o p das particulas mctruth co p das partículas e co p das trazas. Pq pas partículas aplicamos o brem recovery e non me queda claro que pas upstream tracks sexa necesario/conveniente. A diferenza de p entre particulas e traza é q traza non ten aplicado o brem recovery(cando digo particulas a secas erfírome a particulas reco)
 '''
 
+#tamen podo facer un modulo que faga todas as variábeis de tracking e despois mo devolva en xeito de diccionario tipo CandidateInfo
+'''
+def tracking(x, name):
+  trackingInfo = {}
+  trackingInfo["px_"+name] = px(x)
+  ....
+  return trackingInfo
+'''
+#todo o que definiu diego esta en o tes ou ben en Erasmus (Phys/BenderAlgo) ou ben en Urania (Math/SomeUtils)
 DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
 DaVinci().Simulation = True
@@ -155,17 +166,17 @@ class MyAlg(AlgoMC):
         if not pvs_.size(): return SUCCESS
         ips2cuter = MIPCHI2(pvs_,self.geo())
         for ks in ks0s:
+             
+             daughters = map(lambda x: is_el_from_ks(x.proto()),ks.daughters())
+             daughters = filter(lambda y: type(y)==int,daughters)
+             if len(daughters)!=2: continue
+             if daughters[0]==daughters[1]: continue
              ## 1:plus 2:minus
              pi1  = ks.daughters()[0]
              pi2 = ks.daughters()[1]
              e1   = ks.daughters()[2]
              e2  = ks.daughters()[3]
-             daughters = map(lambda x: is_el_from_ks(x.proto()),ks.daughters())
-             daughters = filter(lambda y: type(y)==int,daughters)
-             if len(daughters)!=2: continue
-             if daughters[0]==daughters[1]: continue
-             
-             
+             #SELECTING THE VERTEX
              PVips2 = VIPCHI2( ks, self.geo())
              PV = selectVertexMin(pvs_, PVips2, (PVips2 >= 0. ))
              if not PV:
@@ -209,6 +220,8 @@ class MyAlg(AlgoMC):
              opi1, opi2,oe1,oe2 = trackpi1.position(), trackpi2.position(), tracke1.position(), tracke2.position()
              mippvs = MIP( pvs_, self.geo() )
              iptoPV = IP (PV, self.geo())
+             mipchi2pvs_ = MIPCHI2(pvs_, self.geo())
+             ipchi2PV = IPCHI2(PV, self.geo())
             
              e1ippvs_ = mippvs (e1) # IP
              e2ippvs_ = mippvs (e2)
@@ -219,6 +232,9 @@ class MyAlg(AlgoMC):
              pi2ip_ = iptoPV (pi2)
              e1ip_ = iptoPV (e1)
              e2ip_ = iptoPV (e2)
+
+             
+             
              
              CandidateInfo["ipscheck"]=ipscheck
              CandidateInfo["Vchi2"]= VCHI2(ks.endVertex())
@@ -235,6 +251,20 @@ class MyAlg(AlgoMC):
              CandidateInfo["pi2mip"] = pi2ippvs_
              CandidateInfo["e1mip"] = e1ippvs_
              CandidateInfo["e2mip"] = e2ippvs_
+             CandidateInfo["pi1ip"]=pi1ip_
+             CandidateInfo["pi2ip"]=pi2ip_
+             CandidateInfo["e1ip"]=e1ip_
+             CandidateInfo["e2ip"]=e2ip_
+             CandidateInfo["pi1mipchi2"] = mipchi2pvs_(pi1)
+             CandidateInfo["pi2mipchi2"] = mipchi2pvs_(pi2)
+             CandidateInfo["e1mipchi2"] = mipchi2pvs_(e1)
+             CandidateInfo["e2mipchi2"] = mipchi2pvs_(e2)
+
+             CandidateInfo["pi1ipchi2"] = ipchi2PV(pi1)
+             CandidateInfo["pi2ipchi2"] = ipchi2PV(pi2)
+             CandidateInfo["e1ipchi2"] = ipchi2PV(e1)
+             CandidateInfo["e2ipchi2"] = ipchi2PV(e2)
+             
              CandidateInfo["KS_ctau"] = KSlife_ ## in milimeters !!!!!
              CandidateInfo["KSlife_ps"] = KSlife_ps  ### in ps !!
              CandidateInfo["KSmass"] = M(ks)
@@ -262,8 +292,16 @@ class MyAlg(AlgoMC):
              DOCA_ = DOCA[DOCA_key]
              ###################
              CandidateInfo["DOCA"]=DOCA_
-             #CandidateInfo["DOCA_comb"]=DOCA_key
-
+             if DOCA_key == "e1pi1":   CandidateInfo ["DOCA_comb"]=1
+             elif DOCA_key == "e1pi2": CandidateInfo ["DOCA_comb"]=2
+             elif DOCA_key == "e1e2": CandidateInfo  ["DOCA_comb"]=3
+             elif DOCA_key == "e2pi1": CandidateInfo ["DOCA_comb"]=4
+             elif DOCA_key == "e2pi2": CandidateInfo ["DOCA_comb"]=5
+             elif DOCA_key == "pi1pi2": CandidateInfo["DOCA_comb"]=6
+             else: CandidateInfo["DOCA_comb"]=7
+             
+        
+             #KINEMATIC
 
              CandidateInfo["e1p1"] = PX(e1)
              CandidateInfo["e1p2"] = PY(e1)
@@ -289,6 +327,26 @@ class MyAlg(AlgoMC):
              CandidateInfo["pi2pt"]  = PT(pi2)
              CandidateInfo["pi2ptot"] = P(pi2)
 
+             #PID
+
+             CandidateInfo["e1PIDe"]=PIDe(e1)
+             CandidateInfo["e2PIDe"]=PIDe(e2)
+
+             CandidateInfo["pi1PIDk"]=PIDK(pi1)
+             CandidateInfo["pi2PIDk"]=PIDK(pi2)
+             #WRONG CHARGE
+             
+             if e1.charge()!=1: CandidateInfo["e1WrongCharge"]=1
+             else: CandidateInfo["e1WrongCharge"]=0
+             if e2.charge()!=1: CandidateInfo["e2WrongCharge"]=1
+             else: CandidateInfo["e2WrongCharge"]=0
+             
+
+
+
+
+             #TRACKS AND VERTEX
+
              CandidateInfo["e1o1"] = e1.proto().track().position().x()
              CandidateInfo["e1o2"] = e1.proto().track().position().y()
              CandidateInfo["e1o3"] = e1.proto().track().position().z()
@@ -312,6 +370,7 @@ class MyAlg(AlgoMC):
              CandidateInfo["PV1"] = VX(PV)
              CandidateInfo["PV2"] = VY(PV)
              CandidateInfo["PV3"] = VZ(PV)
+             CandidateInfo["VChi2"]=VCHI2(PV)
              CandidateInfo["KSips"] = KSips
              CandidateInfo["KS_IP" ] =  KSip
              CandidateInfo["KSdissig"]= sigDOFS
@@ -333,8 +392,18 @@ class MyAlg(AlgoMC):
 
              theDira = DIRA(PV)
              CandidateInfo["DIRA"]=theDira(ks)
+             #PROB
              CandidateInfo["ProbNNe1"] = PROBNNe(e1)
              CandidateInfo["ProbNNe2"]= PROBNNe(e2)
+             CandidateInfo["ProbNNGhoste1"]=PROBNNghost(e1)
+             CandidateInfo["ProbNNGhoste2"]=PROBNNghost(e2)
+             CandidateInfo["ProbNNGhostpi1"]=PROBNNghost(pi1)
+             CandidateInfo["ProbNNGhostpi2"]=PROBNNghost(pi2)
+             
+             
+
+             
+             
              keys = CandidateInfo.keys()
              keys.sort()
              for key in keys:
@@ -351,7 +420,7 @@ for name in combs:
 
 gaudi.initialize()
 #TES = gaudi.evtsvc()
-gaudi.run(2000)
+gaudi.run(-1)
 gaudi.stop()
 gaudi.finalize()
 
