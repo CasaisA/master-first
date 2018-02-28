@@ -338,7 +338,7 @@ class MyAlg(AlgoMC):
              
              if e1.charge()!=1: CandidateInfo["e1WrongCharge"]=1
              else: CandidateInfo["e1WrongCharge"]=0
-             if e2.charge()!=1: CandidateInfo["e2WrongCharge"]=1
+             if e2.charge()!=1: CandidateInfo["e2WrongCharge"]=-1
              else: CandidateInfo["e2WrongCharge"]=0
              
 
