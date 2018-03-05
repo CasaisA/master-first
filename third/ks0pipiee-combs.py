@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 import GaudiPython
-import os
 from PhysSelPython.Wrappers import DataOnDemand
-from Configurables import CombineParticles, ChargedProtoParticleMaker, NoPIDsParticleMaker,DaVinci,ChargedPP2MC, LoKi__VertexFitter
+from Configurables import CombineParticles, ChargedProtoParticleMaker, NoPIDsParticleMaker,DaVinci,ChargedPP2MC ,LoKi__VertexFitter
 from CommonParticles import StdAllNoPIDsPions, StdAllNoPIDsElectrons, StdNoPIDsUpElectrons
 from CommonParticles.Utils import *
 from Gaudi.Configuration import NTupleSvc,GaudiSequencer
@@ -70,11 +69,11 @@ Ks2pipiee = {}
 
 for name in combs:
     Ks2pipiee[name] = CombineParticles("TrackSel"+name+"_Ks2pipiee")
-    #Ks2pipiee[name].DecayDescriptor = "KS0 -> pi+ pi- e+ e-"
+    
     if "V" in name:
         Ks2pipiee[name].DecayDescriptors = ["KS0 -> pi+ pi- e+ e-","KS0 -> pi+ pi- e+ e+","KS0 -> pi+ pi- e- e-"]
-        Ks2pipiee[name].ParticleCombiners = {"" : "LoKi::VertexFitter"}
-        Ks2pipiee[name].addTool( LoKi__VertexFitter, name="LoKi::VertexFitter" )
+        #Ks2pipiee[name].ParticleCombiners = {"" : "LoKi::VertexFitter"}
+        #Ks2pipiee[name].addTool( LoKi__VertexFitter, name="LoKi::VertexFitter" )
 
         
     else: Ks2pipiee[name].DecayDescriptor = "KS0 -> pi+ pi- e+ e-"
@@ -124,9 +123,15 @@ DaVinci().EvtMax = 0
 DaVinci().DataType = "2012"
 DaVinci().Simulation = True
 DaVinci().DDDBtag  = "dddb-20130929-1"
-DaVinci().CondDBtag = "sim-20130522-1-vc-mu100"
-DaVinci().Input = ["/scratch29/KsPiPiee/up/00037694_00000035_1.allstreams.dst"]
-DaVinci.TupleFile = "proba.root"
+DaVinci().CondDBtag = "sim-20130522-1-vc-m"+str(sys.argv[1])+"100"
+if str(sys.argv[1])=="u":
+    DaVinci().Input = ["/eos/lhcb/grid/prod/lhcb/MC/2012/ALLSTREAMS.DST/00037694/0000/"+str(sys.argv[2])]
+    #DaVinci.TupleFile = "/eos/lhcb/user/a/acasaisv/kspipiee/stripping/loki-vertex-fit/up/"+str(sys.argv[2])+".root"
+    DaVinci.TupleFile = "/eos/lhcb/user/a/acasaisv/kspipiee/stripping/up/"+str(sys.argv[2])+".root"
+if str(sys.argv[1])=="d":
+    DaVinci().Input = ["/eos/lhcb/grid/prod/lhcb/MC/2012/ALLSTREAMS.DST/00037700/0000/"+str(sys.argv[2])]
+    #DaVinci.TupleFile = "/eos/lhcb/user/a/acasaisv/kspipiee/stripping/loki-vertex-fit/down/"+str(sys.argv[2])+".root"
+    DaVinci.TupleFile = "/eos/lhcb/user/a/acasaisv/kspipiee/stripping/down/"+str(sys.argv[2])+".root"
 
 gaudi = GaudiPython.AppMgr()
 
@@ -351,9 +356,11 @@ class MyAlg(AlgoMC):
              uy = VY(ks.endVertex())-VY(PV)
              uz = VZ(ks.endVertex())-VZ(PV)
              e1_mc = get_mcpar(e1.proto())
-             e2_mc = get_mcpar(e2.proto())
-             pi1_mc = get_mcpar(pi1.proto())
-             pi2_mc = get_mcpar(pi1.proto())
+             # e2_mc = get_mcpar(e2.proto())
+             # pi1_mc = get_mcpar(pi1.proto())
+             # pi2_mc = get_mcpar(pi1.proto())
+             #dont need every mcpar for now
+             
              #TRUTH-V for for comparison with the fit
              ux_t = e1_mc.mother().originVertex().position().x()-e1_mc.mother().endVertices()[-1].position().x()
              uy_t = e1_mc.mother().originVertex().position().y()-e1_mc.mother().endVertices()[-1].position().y()
@@ -367,8 +374,13 @@ class MyAlg(AlgoMC):
              p_piminus = TVector3(PX(pi2),PY(pi2),PZ(pi2))
              p_eplus = TVector3(PX(e1),PY(e1),PZ(e1))
              p_eminus = TVector3(PX(e2),PY(e2),PZ(e2))
-                
-        	
+             #Now I will define the four vector of the dielectron
+             #to get the non constrained mass which is the one
+             #that I can use to cut in the Stripping
+             Peplus= TLorentzVector(); Peplus.SetVectM(p_eplus,emass)
+             Peminus = TLorentzVector();Peminus.SetVectM(p_eminus,emass)
+             Pdielectron_r = Peplus + Peminus
+             CandidateInfo['eeMass']=Pdielectron_r.M()
              uprim = p_piplus + p_piminus
              VVevent = False
              #specification of the 'good' and 'bad' electron momentums
@@ -436,7 +448,9 @@ class MyAlg(AlgoMC):
 
             
                 Ptot = P_piplus + P_piminus + Pgood + Pbad
-            
+
+                Pdielectron = Pgood + Pbad
+                CandidateInfo['eeMassCo']=Pdielectron.M()
                 CandidateInfo['KSMassCo']=Ptot.M()
                 ######################################### trueV
                 
@@ -452,7 +466,9 @@ class MyAlg(AlgoMC):
 
             
                 Ptot_t = P_piplus + P_piminus + Pgood + Pbad_t
-            
+
+                Pdielectron_t = Pgood + Pbad_t
+                CandidateInfo['eeMassCoTrueV']=Pdielectron_t.M()
                 CandidateInfo['KSMassCoTrueV']=Ptot_t.M()
              else:
                 pgood.SetMag(1.)
@@ -474,7 +490,9 @@ class MyAlg(AlgoMC):
 
             
                 Ptot = P_piplus + P_piminus + Pgood + Pbad
-            
+                Pdielectron = Pgood + Pbad
+
+                CandidateInfo['eeMass']=Pdielectron.M()
                 CandidateInfo['KSMassCo']=Ptot.M()
 
                 ########################################### trueV
@@ -497,7 +515,10 @@ class MyAlg(AlgoMC):
 
             
                 Ptot_t = P_piplus + P_piminus + Pgood_t + Pbad_t
-            
+
+                Pdielectron_t = Pgood_t+Pbad_t
+
+                CandidateInfo['eeMassTruePV']=Pdielectron_t.M()
                 CandidateInfo['KSMassCoTrueV']=Ptot.M()
                 
             
@@ -549,8 +570,8 @@ class MyAlg(AlgoMC):
              CandidateInfo["SV1"] = VX(ks.endVertex())           
              CandidateInfo["SV2"] = VY(ks.endVertex())           
              CandidateInfo["SV3"] = VZ(ks.endVertex())          
-             CandidateInfo["evtnum"] = TES["Rec/Header"].evtNumber()
-             CandidateInfo["runnum"] = TES["Rec/Header"].runNumber()
+             CandidateInfo["evtNum"] = TES["Rec/Header"].evtNumber()
+             CandidateInfo["runNum"] = TES["Rec/Header"].runNumber()
 
              CandidateInfo["PV1"] = VX(PV)
              CandidateInfo["PV2"] = VX(PV)
